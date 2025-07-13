@@ -5,9 +5,12 @@
   "scripts": {
     "build": "asc assembly/index.ts --target release --outFile build/boid.wasm --bindings esm --exportRuntime",
     "build:debug": "asc assembly/index.ts --target debug --outFile build/boid.debug.wasm --bindings esm --exportRuntime",
-    "dev": "pnpm build:debug"
+    "dev": "pnpm build:debug",
+    "test": "as-pect",
+    "test:ci": "as-pect --summary"
   },
   "devDependencies": {
-    "assemblyscript": "^0.27.30"
+    "assemblyscript": "^0.27.30",
+    "@as-pect/cli": "^8.1.0"
   }
 }
