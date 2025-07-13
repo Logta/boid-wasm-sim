@@ -1,66 +1,48 @@
-[tools]
-node = "24"
-pnpm = "latest"
+[tasks]
+# 開発用コマンド
+dev = "pnpm dev"
+start = "pnpm dev"
 
-[env]
-NODE_ENV = "development"
+# ビルド関連
+build = "pnpm build"
+build-all = "pnpm build:all"
+rebuild = "pnpm rebuild"
+clean = "pnpm clean"
 
-[tasks.install]
-description = "Install all dependencies"
-run = "pnpm install"
+# 個別パッケージビルド
+build-components = "pnpm components:build"
+build-wasm = "pnpm wasm:build"
+build-web = "pnpm web:build"
 
-[tasks.dev]
-description = "Start development servers (parallel)"
-run = "pnpm dev"
+# 開発用（個別パッケージ）
+dev-components = "pnpm components:dev"
+dev-wasm = "pnpm wasm:dev"
+dev-web = "pnpm web:dev"
 
-[tasks.web]
-description = "Start web development server only"
-run = "pnpm web:dev"
+# テスト関連
+test = "pnpm test"
+test-all = "pnpm test:all"
+test-components = "pnpm components:test"
+test-wasm = "pnpm wasm:test"
+test-web = "pnpm web:test"
 
-[tasks.wasm]
-description = "Build WASM module"
-run = "pnpm wasm:build"
+# 型チェック・リント
+typecheck = "pnpm typecheck"
+lint = "pnpm lint"
+lint-fix = "pnpm lint:fix"
+format = "pnpm format:fix"
+check = "pnpm check"
+check-fix = "pnpm check:fix"
 
-[tasks.build]
-description = "Build entire project"
-run = "pnpm build"
+# プレビュー
+preview = "pnpm web:preview"
 
-[tasks.setup]
-description = "Initial setup: install deps and build WASM"
-run = [
-  "pnpm install",
-  "pnpm wasm:build",
-  "mkdir -p web/public/wasm",
-  "cp wasm/build/boid.wasm web/public/wasm/"
-]
+# 依存関係管理
+install = "pnpm install"
+update = "pnpm update"
 
-[tasks.lint]
-description = "Run biome lint check"
-run = "pnpm lint"
-
-[tasks.lint-fix]
-description = "Run biome lint with auto-fix"
-run = "pnpm lint:fix"
-
-[tasks.format]
-description = "Check code formatting with biome"
-run = "pnpm format"
-
-[tasks.format-fix]
-description = "Format code with biome"
-run = "pnpm format:fix"
-
-[tasks.check]
-description = "Run all biome checks (lint + format)"
-run = "pnpm check"
-
-[tasks.check-fix]
-description = "Run all biome checks with auto-fix"
-run = "pnpm check:fix"
-
-[tasks.quality]
-description = "Run all code quality checks"
-run = [
-  "pnpm check",
-  "echo '✅ Code quality checks passed!'"
-]
+# CI用
+ci-install = "pnpm install --frozen-lockfile"
+ci-build = "pnpm build:all"
+ci-test = "pnpm test:all"
+ci-check = "pnpm typecheck && pnpm lint"

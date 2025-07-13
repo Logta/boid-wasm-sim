@@ -22,21 +22,80 @@ cd boid-wasm-sim
 # mise の設定を信頼
 mise trust
 
-# 初期セットアップ（依存関係のインストール、WASM ビルド）
-mise run setup
+# 依存関係のインストール
+pnpm install
+# または
+make install
 ```
 
 ## 開発
 
 ```bash
-# 開発サーバーの起動
+# 開発サーバーの起動（全パッケージ並行起動）
+pnpm dev
+# または
+make dev
+# または
 mise run dev
 
-# Web アプリケーションのみ起動
-mise run web
+# 個別パッケージの開発
+pnpm web:dev        # Webアプリケーションのみ
+pnpm wasm:dev       # WASMモジュールのみ
+pnpm components:dev # コンポーネントのみ
+```
 
-# WASM モジュールのビルド
-mise run wasm
+## ビルド
+
+```bash
+# 全パッケージのビルド（依存関係順）
+pnpm build
+# または
+make build
+
+# 個別パッケージのビルド
+pnpm components:build  # UIコンポーネント
+pnpm wasm:build       # WASMモジュール
+pnpm web:build        # Webアプリケーション
+
+# クリーンビルド
+pnpm rebuild
+# または
+make clean && make build
+```
+
+## テスト
+
+```bash
+# 全テストの実行
+pnpm test
+# または
+make test
+
+# 個別パッケージのテスト
+pnpm components:test  # UIコンポーネントテスト
+pnpm wasm:test       # WASMモジュールテスト
+pnpm web:test        # Webアプリケーションテスト
+
+# テスト（カバレッジ付き）
+pnpm components:test:coverage
+```
+
+## コード品質
+
+```bash
+# リント
+pnpm lint
+pnpm lint:fix  # 自動修正
+
+# フォーマット
+pnpm format:fix
+
+# 型チェック
+pnpm typecheck
+
+# 全チェック
+pnpm check
+pnpm check:fix  # 自動修正
 ```
 
 開発サーバーは http://localhost:5173/ で起動します。
@@ -45,17 +104,39 @@ mise run wasm
 
 ```
 boid-wasm-sim/
-├── web/              # React アプリケーション
-│   ├── src/
-│   │   ├── components/   # UI コンポーネント
-│   │   ├── hooks/        # カスタムフック
-│   │   └── main/         # エントリーポイント
-│   └── public/
-├── wasm/             # AssemblyScript モジュール
-│   └── src/core/     # Boid アルゴリズムの実装
-├── package.json      # ワークスペース設定
-└── .mise.toml       # 開発環境設定
+├── web/
+│   ├── components/       # @boid-wasm-sim/components - UIコンポーネントライブラリ
+│   │   ├── src/
+│   │   │   ├── *.tsx    # Reactコンポーネント
+│   │   │   ├── *.test.tsx # テストファイル
+│   │   │   └── index.ts  # エクスポート定義
+│   │   └── package.json
+│   └── main/            # @boid-wasm-sim/web - メインアプリケーション
+│       ├── src/
+│       │   ├── App.tsx   # メインアプリ
+│       │   └── main.tsx  # エントリーポイント
+│       ├── index.html
+│       └── package.json
+├── wasm/               # @boid-wasm-sim/wasm - AssemblyScriptモジュール
+│   ├── assembly/
+│   │   ├── types.ts        # 型定義
+│   │   ├── boid-simulation.ts # コアロジック
+│   │   ├── index.ts        # エクスポート
+│   │   └── __tests__/      # テストファイル
+│   ├── build/          # WASMビルド出力
+│   └── package.json
+├── package.json        # ワークスペース設定
+├── pnpm-workspace.yaml # pnpm設定
+├── Makefile           # ビルドコマンド
+├── .mise.toml         # 開発環境設定
+└── biome.json         # リント・フォーマット設定
 ```
+
+### パッケージ構成
+
+- **@boid-wasm-sim/components**: 再利用可能なUIコンポーネント
+- **@boid-wasm-sim/web**: メインWebアプリケーション  
+- **@boid-wasm-sim/wasm**: boidシミュレーションのコアロジック
 
 ## 機能
 
