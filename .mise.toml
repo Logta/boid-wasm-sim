@@ -36,31 +36,31 @@ run = [
 
 [tasks.lint]
 description = "Run biome lint check"
-run = "biome lint ."
+run = "pnpm lint"
 
 [tasks.lint-fix]
 description = "Run biome lint with auto-fix"
-run = "biome lint --write ."
+run = "pnpm lint:fix"
 
 [tasks.format]
 description = "Check code formatting with biome"
-run = "biome format ."
+run = "pnpm format"
 
 [tasks.format-fix]
 description = "Format code with biome"
-run = "biome format --write ."
+run = "pnpm format:fix"
 
 [tasks.check]
 description = "Run all biome checks (lint + format)"
-run = "biome check ."
+run = "pnpm check"
 
 [tasks.check-fix]
 description = "Run all biome checks with auto-fix"
-run = "biome check --write ."
+run = "pnpm check:fix"
 
 [tasks.quality]
 description = "Run all code quality checks"
 run = [
-  "biome check .",
+  "pnpm check",
   "echo '✅ Code quality checks passed!'"
 ]
