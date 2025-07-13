@@ -18,7 +18,7 @@ let cohesionDistance: f32 = 50.0;
 let separationForce: f32 = 1.5;
 let alignmentForce: f32 = 1.0;
 let cohesionForce: f32 = 1.0;
-let maxSpeed: f32 = 2.0;
+let maxSpeed: f32 = 1.0;
 let maxForce: f32 = 0.05;
 let mouseAvoidDistance: f32 = 100.0;
 let mouseAvoidForce: f32 = 5.0;
@@ -37,11 +37,12 @@ export function init(count: i32, width: f32, height: f32): void {
 
   for (let i = 0; i < count; i++) {
     const angle = Mathf.random() * 2.0 * Mathf.PI;
+    const speed = Mathf.random() * 0.5 + 0.2; // Random speed between 0.2 and 0.7
     boids.push(new Boid(
       Mathf.random() * width,
       Mathf.random() * height,
-      Mathf.cos(angle) * maxSpeed,
-      Mathf.sin(angle) * maxSpeed
+      Mathf.cos(angle) * speed,
+      Mathf.sin(angle) * speed
     ));
   }
 }
@@ -183,10 +184,11 @@ function updateBoid(index: i32): void {
   boid.x += boid.vx;
   boid.y += boid.vy;
 
-  if (boid.x < 0) boid.x += canvasWidth;
-  else if (boid.x >= canvasWidth) boid.x -= canvasWidth;
-  if (boid.y < 0) boid.y += canvasHeight;
-  else if (boid.y >= canvasHeight) boid.y -= canvasHeight;
+  // Smooth boundary wrapping instead of instant teleportation
+  if (boid.x < 0) boid.x = canvasWidth - 1;
+  else if (boid.x >= canvasWidth) boid.x = 1;
+  if (boid.y < 0) boid.y = canvasHeight - 1;
+  else if (boid.y >= canvasHeight) boid.y = 1;
 }
 
 export function update(): void {
@@ -196,7 +198,10 @@ export function update(): void {
 }
 
 export function getPositions(): Float32Array {
-  const positions = new Float32Array(boids.length * 4);
+  // Create positions array with the correct size
+  const arraySize = boids.length * 4;
+  const positions = new Float32Array(arraySize);
+  
   for (let i = 0; i < boids.length; i++) {
     const boid = boids[i];
     positions[i * 4] = boid.x;
@@ -205,6 +210,11 @@ export function getPositions(): Float32Array {
     positions[i * 4 + 3] = boid.vy;
   }
   return positions;
+}
+
+// Debug function to check boid count
+export function getBoidCount(): i32 {
+  return boids.length;
 }
 
 function abs(x: f32): f32 {

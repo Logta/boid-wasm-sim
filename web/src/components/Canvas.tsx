@@ -32,7 +32,22 @@ export function Canvas({ positions, onMouseMove }: CanvasProps) {
     const width = canvas.width
     const height = canvas.height
 
-    ctx.clearRect(0, 0, width, height)
+    // Clear canvas with background color
+    ctx.fillStyle = '#f0f0f0'
+    ctx.fillRect(0, 0, width, height)
+
+    if (positions.length === 0) {
+      // Draw "No data" message
+      ctx.fillStyle = '#333'
+      ctx.font = '16px Arial'
+      ctx.textAlign = 'center'
+      ctx.fillText('No boid data available', width / 2, height / 2)
+      return
+    }
+
+    // Debug: Count how many boids will actually be drawn
+    let drawnBoids = 0
+
     ctx.fillStyle = '#000000'
 
     for (let i = 0; i < positions.length; i += 4) {
@@ -40,6 +55,11 @@ export function Canvas({ positions, onMouseMove }: CanvasProps) {
       const y = positions[i + 1]
       const vx = positions[i + 2]
       const vy = positions[i + 3]
+
+      // Skip invalid positions
+      if (isNaN(x) || isNaN(y)) continue
+
+      drawnBoids++
 
       const angle = Math.atan2(vy, vx)
       const size = 6
@@ -56,6 +76,11 @@ export function Canvas({ positions, onMouseMove }: CanvasProps) {
       ctx.fill()
 
       ctx.restore()
+    }
+
+    // Debug: Display count
+    if (drawnBoids !== positions.length / 4) {
+      console.log(`Drew ${drawnBoids} boids out of ${positions.length / 4} total`)
     }
   }, [positions])
 
