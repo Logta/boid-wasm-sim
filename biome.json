@@ -7,14 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": [
-      "node_modules",
-      "dist",
-      "build",
-      "coverage",
-      "*.wasm",
-      "*.map"
-    ]
+    "includes": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.json", "!node_modules/**", "!dist/**", "!build/**", "!coverage/**", "!**/*.wasm", "!**/*.map"]
   },
   "formatter": {
     "enabled": true,
@@ -22,11 +15,7 @@
     "indentStyle": "space",
     "indentWidth": 2,
     "lineEnding": "lf",
-    "lineWidth": 100,
-    "attributePosition": "auto"
-  },
-  "organizeImports": {
-    "enabled": true
+    "lineWidth": 100
   },
   "linter": {
     "enabled": true,
@@ -67,17 +56,11 @@
       "arrowParentheses": "always",
       "bracketSpacing": true,
       "bracketSameLine": false,
-      "quoteStyle": "double",
-      "attributePosition": "auto"
+      "quoteStyle": "double"
     }
   },
   "json": {
     "formatter": {
-      "enabled": true,
-      "indentStyle": "space",
-      "indentWidth": 2,
-      "lineEnding": "lf",
-      "lineWidth": 100,
       "trailingCommas": "none"
     }
   }
