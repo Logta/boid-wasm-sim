@@ -1,0 +1,29 @@
+// UIコンポーネント
+export { Header } from "./Header"
+export { Sidebar } from "./Sidebar"
+export { BoidRenderer } from "./BoidRenderer"
+export { SimulationCanvas } from "./SimulationCanvas"
+
+// 制御コンポーネント
+export { BoidCountSelector } from "./BoidCountSelector"
+export { ParameterPanel } from "./ParameterPanel"
+export { ParameterSlider } from "./ParameterSlider"
+export { SimulationControls } from "./SimulationControls"
+
+// 型定義
+export type SimulationParameters = {
+  separationRadius: number
+  separationStrength: number
+  alignmentRadius: number
+  alignmentStrength: number
+  cohesionRadius: number
+  cohesionStrength: number
+  mouseAvoidanceDistance: number
+}
+
+export type Boid = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+}

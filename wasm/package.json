@@ -3,14 +3,20 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "asc assembly/index.ts --target release --outFile build/boid.wasm --bindings esm --exportRuntime",
+    "build": "pnpm build:release",
+    "build:release": "asc assembly/index.ts --target release --outFile build/boid.wasm --bindings esm --exportRuntime",
     "build:debug": "asc assembly/index.ts --target debug --outFile build/boid.debug.wasm --bindings esm --exportRuntime",
+    "build:watch": "nodemon --watch assembly --ext ts --exec \"pnpm build:debug\"",
     "dev": "pnpm build:debug",
+    "clean": "rm -rf build",
+    "rebuild": "pnpm clean && pnpm build",
     "test": "as-pect",
-    "test:ci": "as-pect --summary"
+    "test:ci": "as-pect --summary",
+    "validate": "asc assembly/index.ts --validate"
   },
   "devDependencies": {
     "assemblyscript": "^0.27.30",
-    "@as-pect/cli": "^8.1.0"
+    "@as-pect/cli": "^8.1.0",
+    "nodemon": "^3.1.7"
   }
 }

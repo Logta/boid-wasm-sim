@@ -1,7 +1,5 @@
 import "./index.css"
-import { Header } from "../../../components/Header"
-import { Sidebar } from "../../../components/Sidebar"
-import { SimulationCanvas } from "../../../components/SimulationCanvas"
+import { Header, Sidebar, SimulationCanvas } from "@boid-wasm-sim/components"
 
 export function App() {
   return (

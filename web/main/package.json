@@ -4,15 +4,20 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "pnpm build:deps && vite build",
+    "build:deps": "pnpm --filter @boid-wasm-sim/components build && pnpm --filter @boid-wasm-sim/wasm build",
+    "build:only": "vite build",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "@boid-wasm-sim/components": "workspace:*",
+    "@boid-wasm-sim/wasm": "workspace:*",
     "@radix-ui/react-slider": "^1.2.2",
     "@radix-ui/react-switch": "^1.1.1",
     "class-variance-authority": "^0.7.1",
