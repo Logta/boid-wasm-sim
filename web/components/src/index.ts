@@ -13,6 +13,7 @@ export { SimulationControls } from "./SimulationControls"
 // hooks
 export { useBoidWasm } from "./hooks/useBoidWasm"
 export { useSimulation } from "./hooks/useSimulation"
+export { usePerformanceMonitor } from "./hooks/usePerformanceMonitor"
 
 // 型定義
 export type SimulationParameters = {

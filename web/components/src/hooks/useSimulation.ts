@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useBoidWasm } from "./useBoidWasm"
+import { usePerformanceMonitor } from "./usePerformanceMonitor"
 
 type SimulationParameters = {
   separationRadius: number
@@ -47,12 +48,14 @@ export function useSimulation() {
   const [boidCount, setBoidCount] = useState(100)
   const [parameters, setParameters] = useState<SimulationParameters>(DEFAULT_PARAMETERS)
   const [boids, setBoids] = useState<Boid[]>([])
-  const [fps, setFps] = useState(0)
 
   const animationFrameRef = useRef<number>()
-  const lastFrameTimeRef = useRef<number>(0)
-  const frameCountRef = useRef<number>(0)
-  const fpsUpdateTimeRef = useRef<number>(0)
+  
+  const performance = usePerformanceMonitor(60, {
+    onPerformanceWarning: (warning) => {
+      console.warn(`Performance warning: FPS dropped to ${warning.fps} (target: ${warning.target})`)
+    }
+  })
 
   // WASMロード完了後にシミュレーション初期化
   useEffect(() => {
@@ -63,31 +66,29 @@ export function useSimulation() {
   }, [wasmModule, isLoading, boidCount, initializeSimulation, getBoids])
 
   // アニメーションループ
-  const animate = useCallback((currentTime: number) => {
+  const animate = useCallback(() => {
     if (!isPlaying) return
 
-    // FPS計算
-    frameCountRef.current++
-    if (currentTime - fpsUpdateTimeRef.current >= 1000) {
-      setFps(Math.round((frameCountRef.current * 1000) / (currentTime - fpsUpdateTimeRef.current)))
-      frameCountRef.current = 0
-      fpsUpdateTimeRef.current = currentTime
-    }
-
+    performance.startFrame()
+    
     // シミュレーション更新
+    performance.startUpdate()
     updateSimulation()
+    performance.endUpdate()
+    
+    // レンダリング準備
+    performance.startRender()
     setBoids(getBoids())
-
-    lastFrameTimeRef.current = currentTime
+    performance.endRender()
+    
+    performance.endFrame()
     animationFrameRef.current = requestAnimationFrame(animate)
-  }, [isPlaying, updateSimulation, getBoids])
+  }, [isPlaying, updateSimulation, getBoids, performance])
 
   // 再生状態変更時のアニメーション制御
   useEffect(() => {
     if (isPlaying) {
-      lastFrameTimeRef.current = performance.now()
-      fpsUpdateTimeRef.current = performance.now()
-      frameCountRef.current = 0
+      performance.reset()
       animationFrameRef.current = requestAnimationFrame(animate)
     } else {
       if (animationFrameRef.current) {
@@ -100,7 +101,7 @@ export function useSimulation() {
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [isPlaying, animate])
+  }, [isPlaying, animate, performance])
 
   const togglePlayPause = useCallback(() => {
     setIsPlaying(prev => !prev)
@@ -112,8 +113,8 @@ export function useSimulation() {
       initializeSimulation(boidCount, 800, 600)
       setBoids(getBoids())
     }
-    setFps(0)
-  }, [wasmModule, boidCount, initializeSimulation, getBoids])
+    performance.reset()
+  }, [wasmModule, boidCount, initializeSimulation, getBoids, performance])
 
   const changeBoidCount = useCallback((count: number) => {
     setBoidCount(count)
@@ -162,7 +163,10 @@ export function useSimulation() {
     boidCount,
     parameters,
     boids,
-    fps,
+    fps: performance.fps,
+    frameTime: performance.frameTime,
+    updateTime: performance.updateTime,
+    renderTime: performance.renderTime,
     
     // アクション
     togglePlayPause,
