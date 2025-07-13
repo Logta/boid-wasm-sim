@@ -21,6 +21,7 @@ interface WasmModule {
   ) => void
   updateMouse: (x: number, y: number) => void
   getPositions: () => Float32Array
+  getBoidCount: () => number
 }
 
 export function useBoidSimulation() {
@@ -32,9 +33,9 @@ export function useBoidSimulation() {
     separationDistance: 25,
     alignmentDistance: 50,
     cohesionDistance: 50,
-    separationForce: 1.5,
-    alignmentForce: 1.0,
-    cohesionForce: 1.0,
+    separationForce: 0.2,
+    alignmentForce: 0.1,
+    cohesionForce: 0.1,
     mouseAvoidDistance: 100,
     mouseAvoidForce: 5.0
   })
@@ -79,32 +80,11 @@ export function useBoidSimulation() {
               
               // Check actual boid count from WASM
               const actualBoidCount = exports.getBoidCount()
-              console.log(`WASM reports ${actualBoidCount} boids`)
-              
               // Get memory buffer
               const memoryBuffer = memory.buffer
               
-              // For AssemblyScript Float32Array, try reading the array buffer length from ptr - 8
-              // AssemblyScript array header:
-              // ptr - 20: allocation size
-              // ptr - 16: array buffer size in bytes  
-              // ptr - 12: array buffer id
-              // ptr - 8:  array buffer capacity 
-              // ptr - 4:  array buffer byte length
-              // ptr:      data start
-              
-              const dataView = new DataView(memoryBuffer)
-              
-              // Try reading the buffer byte length from ptr - 4
-              const bufferByteLength = dataView.getUint32(ptr - 4, true)
-              
-              // Expected size should be actualBoidCount * 4 * 4 bytes (4 floats per boid, 4 bytes per float)
-              const expectedBytes = actualBoidCount * 4 * 4
-              
-              console.log(`Memory read: ptr=${ptr}, bufferByteLength=${bufferByteLength}, expectedBytes=${expectedBytes}`)
-              
-              // Use the expected size since the header might not be correctly read
-              const elementLength = expectedBytes / 4 // Convert bytes to float32 count
+              // Use the expected size based on boid count
+              const elementLength = actualBoidCount * 4 // 4 floats per boid
               
               // Create Float32Array view starting from the data pointer
               const float32View = new Float32Array(memoryBuffer, ptr, elementLength)
@@ -131,7 +111,6 @@ export function useBoidSimulation() {
         )
         
         const initialPositions = wasmRef.current?.getPositions() || new Float32Array(0)
-        console.log(`Expected ${boidCount} boids, got ${initialPositions.length / 4} boids`)
         setPositions(initialPositions)
       } catch (error) {
         console.error('Failed to load WASM module:', error)
@@ -142,7 +121,6 @@ export function useBoidSimulation() {
 
   useEffect(() => {
     if (wasmRef.current) {
-      console.log(`Reinitializing with ${boidCount} boids`)
       wasmRef.current.init(boidCount, 800, 600)
       wasmRef.current.setParameters(
         parameters.separationDistance,
@@ -155,7 +133,6 @@ export function useBoidSimulation() {
         parameters.mouseAvoidForce
       )
       const newPositions = wasmRef.current.getPositions()
-      console.log(`After reinit: expected ${boidCount}, got ${newPositions.length / 4} boids`)
       setPositions(newPositions)
     }
   }, [boidCount])

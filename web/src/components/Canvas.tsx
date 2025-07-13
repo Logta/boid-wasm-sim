@@ -45,9 +45,6 @@ export function Canvas({ positions, onMouseMove }: CanvasProps) {
       return
     }
 
-    // Debug: Count how many boids will actually be drawn
-    let drawnBoids = 0
-
     ctx.fillStyle = '#000000'
 
     for (let i = 0; i < positions.length; i += 4) {
@@ -58,8 +55,6 @@ export function Canvas({ positions, onMouseMove }: CanvasProps) {
 
       // Skip invalid positions
       if (isNaN(x) || isNaN(y)) continue
-
-      drawnBoids++
 
       const angle = Math.atan2(vy, vx)
       const size = 6
@@ -76,11 +71,6 @@ export function Canvas({ positions, onMouseMove }: CanvasProps) {
       ctx.fill()
 
       ctx.restore()
-    }
-
-    // Debug: Display count
-    if (drawnBoids !== positions.length / 4) {
-      console.log(`Drew ${drawnBoids} boids out of ${positions.length / 4} total`)
     }
   }, [positions])
 
