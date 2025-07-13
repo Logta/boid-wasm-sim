@@ -20,11 +20,11 @@ export class Boid {
 let separationDistance: f32 = 25.0;    // 分離行動の影響距離
 let alignmentDistance: f32 = 50.0;     // 整列行動の影響距離
 let cohesionDistance: f32 = 50.0;      // 結合行動の影響距離
-let separationForce: f32 = 0.2;        // 分離行動の力の強さ
-let alignmentForce: f32 = 0.1;         // 整列行動の力の強さ
-let cohesionForce: f32 = 0.1;          // 結合行動の力の強さ
-let maxSpeed: f32 = 1.5;               // 最大速度
-let maxForce: f32 = 0.03;              // 最大操舵力
+let separationForce: f32 = 0.3;        // 分離行動の力の強さ
+let alignmentForce: f32 = 0.15;        // 整列行動の力の強さ
+let cohesionForce: f32 = 0.15;         // 結合行動の力の強さ
+let maxSpeed: f32 = 2.0;               // 最大速度
+let maxForce: f32 = 0.05;              // 最大操舵力
 let mouseAvoidDistance: f32 = 100.0;   // マウス回避の影響距離
 let mouseAvoidForce: f32 = 5.0;        // マウス回避の力の強さ
 
@@ -51,7 +51,7 @@ export function init(count: i32, width: f32, height: f32): void {
   // 指定された個体数のボイドを生成
   for (let i = 0; i < count; i++) {
     const angle = Mathf.random() * 2.0 * Mathf.PI;
-    const speed = Mathf.random() * 0.5 + 0.2; // 0.2～0.7の範囲でランダムな速度
+    const speed = Mathf.random() * 1.0 + 0.8; // 0.8～1.8の範囲でランダムな速度
     boids.push(new Boid(
       Mathf.random() * width,   // ランダムなX座標
       Mathf.random() * height,  // ランダムなY座標
@@ -248,26 +248,57 @@ function updateBoid(index: i32): void {
     }
   }
 
+  // 各力のNaNチェック
+  if (isNaN(sepX)) sepX = 0;
+  if (isNaN(sepY)) sepY = 0;
+  if (isNaN(alignX)) alignX = 0;
+  if (isNaN(alignY)) alignY = 0;
+  if (isNaN(cohX)) cohX = 0;
+  if (isNaN(cohY)) cohY = 0;
+  if (isNaN(mouseForceX)) mouseForceX = 0;
+  if (isNaN(mouseForceY)) mouseForceY = 0;
+  
   // すべての力を合成して速度に加算
   boid.vx += sepX + alignX + cohX + mouseForceX;
   boid.vy += sepY + alignY + cohY + mouseForceY;
 
-  // 速度制限：最大速度を超えないようにする
+  // 速度制限：最大速度を超えないようにし、最小速度も維持する
   const speed = Mathf.sqrt(boid.vx * boid.vx + boid.vy * boid.vy);
+  const minSpeed: f32 = 0.5; // 最小速度
+  const epsilon: f32 = 0.001; // 極小値の判定用
+  
   if (speed > maxSpeed) {
+    // 最大速度制限
     boid.vx = (boid.vx / speed) * maxSpeed;
     boid.vy = (boid.vy / speed) * maxSpeed;
+  } else if (speed < epsilon) {
+    // 完全に停止または極めて小さい速度の場合はランダムな方向に最小速度を与える
+    const angle = Mathf.random() * 2.0 * Mathf.PI;
+    boid.vx = Mathf.cos(angle) * minSpeed;
+    boid.vy = Mathf.sin(angle) * minSpeed;
+  } else if (speed < minSpeed) {
+    // 速度が小さすぎる場合は最小速度まで増加
+    boid.vx = (boid.vx / speed) * minSpeed;
+    boid.vy = (boid.vy / speed) * minSpeed;
   }
 
+  // 速度のNaNチェック
+  if (isNaN(boid.vx)) boid.vx = 0.5;
+  if (isNaN(boid.vy)) boid.vy = 0.5;
+  
   // 位置を更新
   boid.x += boid.vx;
   boid.y += boid.vy;
+  
+  // 位置のNaNチェック
+  if (isNaN(boid.x)) boid.x = Mathf.random() * canvasWidth;
+  if (isNaN(boid.y)) boid.y = Mathf.random() * canvasHeight;
 
-  // 境界処理：スムーズな境界ラッピング（瞬間移動ではなく）
-  if (boid.x < 0) boid.x = canvasWidth - 1;
-  else if (boid.x >= canvasWidth) boid.x = 1;
-  if (boid.y < 0) boid.y = canvasHeight - 1;
-  else if (boid.y >= canvasHeight) boid.y = 1;
+  // 境界処理：トーラス境界ラッピング
+  if (boid.x < 0) boid.x += canvasWidth;
+  else if (boid.x >= canvasWidth) boid.x -= canvasWidth;
+  if (boid.y < 0) boid.y += canvasHeight;
+  else if (boid.y >= canvasHeight) boid.y -= canvasHeight;
 }
 
 /**
@@ -316,4 +347,12 @@ export function getBoidCount(): i32 {
  */
 function abs(x: f32): f32 {
   return x < 0 ? -x : x;
+}
+
+function isNaN(x: f32): boolean {
+  return x !== x;
+}
+
+function isFinite(x: f32): boolean {
+  return !isNaN(x) && x !== Infinity && x !== -Infinity;
 }

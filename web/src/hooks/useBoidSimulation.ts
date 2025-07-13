@@ -33,9 +33,9 @@ export function useBoidSimulation() {
     separationDistance: 25,
     alignmentDistance: 50,
     cohesionDistance: 50,
-    separationForce: 0.2,
-    alignmentForce: 0.1,
-    cohesionForce: 0.1,
+    separationForce: 0.3,
+    alignmentForce: 0.15,
+    cohesionForce: 0.15,
     mouseAvoidDistance: 100,
     mouseAvoidForce: 5.0
   })

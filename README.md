@@ -66,7 +66,7 @@ boid-wasm-sim/
 
 ## 技術スタック
 
-- **Frontend**: React Router v7, Tailwind CSS v4, shadcn/ui
+- **Frontend**: Vite v7, Tailwind CSS v4, shadcn/ui
 - **WebAssembly**: AssemblyScript
 - **ビルドツール**: Vite
 - **パッケージ管理**: pnpm workspace
