@@ -7,10 +7,17 @@
     "dev": "pnpm --parallel dev",
     "build": "pnpm --filter wasm build && pnpm --filter web build",
     "wasm:build": "pnpm --filter wasm build",
-    "web:dev": "pnpm --filter web dev"
+    "web:dev": "pnpm --filter web dev",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format .",
+    "format:fix": "biome format --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write ."
   },
   "devDependencies": {
     "@types/node": "^24.0.13",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "@biomejs/biome": "2.1.1"
   }
 }
