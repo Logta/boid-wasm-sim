@@ -5,9 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --parallel dev",
-    "build": "pnpm --filter wasm build && pnpm --filter web build",
+    "build": "pnpm --filter wasm build && pnpm --filter @boid-wasm-sim/web build",
     "wasm:build": "pnpm --filter wasm build",
-    "web:dev": "pnpm --filter web dev",
+    "web:dev": "pnpm --filter @boid-wasm-sim/web dev",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
     "format": "biome format .",
