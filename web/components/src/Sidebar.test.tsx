@@ -33,7 +33,8 @@ describe("Sidebar", () => {
 
   it("boid数セレクターが表示される", () => {
     render(<Sidebar {...defaultProps} />)
-    expect(screen.getByText("Boid Count")).toBeInTheDocument()
+    expect(screen.getByRole("combobox")).toBeInTheDocument()
+    expect(screen.getByText("100 boids")).toBeInTheDocument()
   })
 
   it("パラメータ調整セクションが表示される", () => {

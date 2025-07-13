@@ -76,17 +76,29 @@ describe("ParameterPanel", () => {
   })
 
   it("現在のパラメータ値が正しく表示される", () => {
+    const customParams = {
+      separationRadius: 25,
+      separationStrength: 1.5,
+      alignmentRadius: 55,
+      alignmentStrength: 1.2,
+      cohesionRadius: 45,
+      cohesionStrength: 0.8,
+      mouseAvoidanceDistance: 120
+    }
+    
     render(
       <ParameterPanel 
-        parameters={defaultParams}
+        parameters={customParams}
         onParameterChange={() => {}}
       />
     )
     
     expect(screen.getByText("25")).toBeInTheDocument() // separationRadius
     expect(screen.getByText("1.5")).toBeInTheDocument() // separationStrength
-    expect(screen.getByText("50")).toBeInTheDocument() // alignmentRadius/cohesionRadius
-    expect(screen.getByText("1")).toBeInTheDocument() // alignmentStrength/cohesionStrength
-    expect(screen.getByText("100")).toBeInTheDocument() // mouseAvoidanceDistance
+    expect(screen.getByText("55")).toBeInTheDocument() // alignmentRadius
+    expect(screen.getByText("1.2")).toBeInTheDocument() // alignmentStrength
+    expect(screen.getByText("45")).toBeInTheDocument() // cohesionRadius
+    expect(screen.getByText("0.8")).toBeInTheDocument() // cohesionStrength
+    expect(screen.getByText("120")).toBeInTheDocument() // mouseAvoidanceDistance
   })
 })

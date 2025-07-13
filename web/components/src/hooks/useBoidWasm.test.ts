@@ -31,10 +31,15 @@ const mockWasm = {
   updateMouseAvoidanceDistance: mockUpdateMouseAvoidanceDistance,
 }
 
-// WebAssembly.instantiate のモック
+// fetch のモック
+global.fetch = vi.fn().mockResolvedValue({
+  arrayBuffer: () => Promise.resolve(new ArrayBuffer(0))
+})
+
+// WebAssembly.instantiateStreaming のモック
 global.WebAssembly = {
   ...global.WebAssembly,
-  instantiate: vi.fn().mockResolvedValue({
+  instantiateStreaming: vi.fn().mockResolvedValue({
     instance: {
       exports: mockWasm
     }
@@ -162,8 +167,8 @@ describe("useBoidWasm", () => {
   })
 
   it("WASMロードエラーを処理する", async () => {
-    // WebAssembly.instantiate がエラーを投げるようにモック
-    global.WebAssembly.instantiate = vi.fn().mockRejectedValue(new Error("WASM load failed"))
+    // WebAssembly.instantiateStreaming がエラーを投げるようにモック
+    global.WebAssembly.instantiateStreaming = vi.fn().mockRejectedValue(new Error("WASM load failed"))
     
     const { result } = renderHook(() => useBoidWasm())
     
