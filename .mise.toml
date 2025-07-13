@@ -33,3 +33,34 @@ run = [
   "mkdir -p web/public/wasm",
   "cp wasm/build/boid.wasm web/public/wasm/"
 ]
+
+[tasks.lint]
+description = "Run biome lint check"
+run = "biome lint ."
+
+[tasks.lint-fix]
+description = "Run biome lint with auto-fix"
+run = "biome lint --write ."
+
+[tasks.format]
+description = "Check code formatting with biome"
+run = "biome format ."
+
+[tasks.format-fix]
+description = "Format code with biome"
+run = "biome format --write ."
+
+[tasks.check]
+description = "Run all biome checks (lint + format)"
+run = "biome check ."
+
+[tasks.check-fix]
+description = "Run all biome checks with auto-fix"
+run = "biome check --write ."
+
+[tasks.quality]
+description = "Run all code quality checks"
+run = [
+  "biome check .",
+  "echo '✅ Code quality checks passed!'"
+]
