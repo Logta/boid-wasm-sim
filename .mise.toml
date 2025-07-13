@@ -1,0 +1,35 @@
+[tools]
+node = "24"
+pnpm = "latest"
+
+[env]
+NODE_ENV = "development"
+
+[tasks.install]
+description = "Install all dependencies"
+run = "pnpm install"
+
+[tasks.dev]
+description = "Start development servers (parallel)"
+run = "pnpm dev"
+
+[tasks.web]
+description = "Start web development server only"
+run = "pnpm web:dev"
+
+[tasks.wasm]
+description = "Build WASM module"
+run = "pnpm wasm:build"
+
+[tasks.build]
+description = "Build entire project"
+run = "pnpm build"
+
+[tasks.setup]
+description = "Initial setup: install deps and build WASM"
+run = [
+  "pnpm install",
+  "pnpm wasm:build",
+  "mkdir -p web/public/wasm",
+  "cp wasm/build/boid.wasm web/public/wasm/"
+]

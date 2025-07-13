@@ -1,0 +1,16 @@
+{
+  "name": "boid-wasm-sim",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --parallel dev",
+    "build": "pnpm --filter wasm build && pnpm --filter web build",
+    "wasm:build": "pnpm --filter wasm build",
+    "web:dev": "pnpm --filter web dev"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.13",
+    "typescript": "^5.8.3"
+  }
+}
