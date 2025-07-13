@@ -10,6 +10,10 @@ export { ParameterPanel } from "./ParameterPanel"
 export { ParameterSlider } from "./ParameterSlider"
 export { SimulationControls } from "./SimulationControls"
 
+// hooks
+export { useBoidWasm } from "./hooks/useBoidWasm"
+export { useSimulation } from "./hooks/useSimulation"
+
 // 型定義
 export type SimulationParameters = {
   separationRadius: number

@@ -1,0 +1,174 @@
+import { useState, useEffect, useCallback, useRef } from "react"
+import { useBoidWasm } from "./useBoidWasm"
+
+type SimulationParameters = {
+  separationRadius: number
+  separationStrength: number
+  alignmentRadius: number
+  alignmentStrength: number
+  cohesionRadius: number
+  cohesionStrength: number
+  mouseAvoidanceDistance: number
+}
+
+type Boid = {
+  x: number
+  y: number
+  vx: number
+  vy: number
+}
+
+const DEFAULT_PARAMETERS: SimulationParameters = {
+  separationRadius: 25,
+  separationStrength: 1.5,
+  alignmentRadius: 50,
+  alignmentStrength: 1.0,
+  cohesionRadius: 50,
+  cohesionStrength: 1.0,
+  mouseAvoidanceDistance: 100
+}
+
+export function useSimulation() {
+  const {
+    wasmModule,
+    isLoading,
+    error,
+    initializeSimulation,
+    updateSimulation,
+    setMousePosition: setWasmMousePosition,
+    getBoids,
+    updateSeparationParams,
+    updateAlignmentParams,
+    updateCohesionParams,
+    updateMouseAvoidanceDistance
+  } = useBoidWasm()
+
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [boidCount, setBoidCount] = useState(100)
+  const [parameters, setParameters] = useState<SimulationParameters>(DEFAULT_PARAMETERS)
+  const [boids, setBoids] = useState<Boid[]>([])
+  const [fps, setFps] = useState(0)
+
+  const animationFrameRef = useRef<number>()
+  const lastFrameTimeRef = useRef<number>(0)
+  const frameCountRef = useRef<number>(0)
+  const fpsUpdateTimeRef = useRef<number>(0)
+
+  // WASMロード完了後にシミュレーション初期化
+  useEffect(() => {
+    if (wasmModule && !isLoading) {
+      initializeSimulation(boidCount, 800, 600)
+      setBoids(getBoids())
+    }
+  }, [wasmModule, isLoading, boidCount, initializeSimulation, getBoids])
+
+  // アニメーションループ
+  const animate = useCallback((currentTime: number) => {
+    if (!isPlaying) return
+
+    // FPS計算
+    frameCountRef.current++
+    if (currentTime - fpsUpdateTimeRef.current >= 1000) {
+      setFps(Math.round((frameCountRef.current * 1000) / (currentTime - fpsUpdateTimeRef.current)))
+      frameCountRef.current = 0
+      fpsUpdateTimeRef.current = currentTime
+    }
+
+    // シミュレーション更新
+    updateSimulation()
+    setBoids(getBoids())
+
+    lastFrameTimeRef.current = currentTime
+    animationFrameRef.current = requestAnimationFrame(animate)
+  }, [isPlaying, updateSimulation, getBoids])
+
+  // 再生状態変更時のアニメーション制御
+  useEffect(() => {
+    if (isPlaying) {
+      lastFrameTimeRef.current = performance.now()
+      fpsUpdateTimeRef.current = performance.now()
+      frameCountRef.current = 0
+      animationFrameRef.current = requestAnimationFrame(animate)
+    } else {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [isPlaying, animate])
+
+  const togglePlayPause = useCallback(() => {
+    setIsPlaying(prev => !prev)
+  }, [])
+
+  const reset = useCallback(() => {
+    setIsPlaying(false)
+    if (wasmModule) {
+      initializeSimulation(boidCount, 800, 600)
+      setBoids(getBoids())
+    }
+    setFps(0)
+  }, [wasmModule, boidCount, initializeSimulation, getBoids])
+
+  const changeBoidCount = useCallback((count: number) => {
+    setBoidCount(count)
+    if (wasmModule) {
+      initializeSimulation(count, 800, 600)
+      setBoids(getBoids())
+    }
+  }, [wasmModule, initializeSimulation, getBoids])
+
+  const setMousePosition = useCallback((x: number, y: number) => {
+    setWasmMousePosition(x, y)
+  }, [setWasmMousePosition])
+
+  const updateParameter = useCallback((key: keyof SimulationParameters, value: number) => {
+    setParameters(prev => {
+      const newParams = { ...prev, [key]: value }
+      
+      // WASMパラメータ更新
+      switch (key) {
+        case "separationRadius":
+        case "separationStrength":
+          updateSeparationParams(newParams.separationRadius, newParams.separationStrength)
+          break
+        case "alignmentRadius":
+        case "alignmentStrength":
+          updateAlignmentParams(newParams.alignmentRadius, newParams.alignmentStrength)
+          break
+        case "cohesionRadius":
+        case "cohesionStrength":
+          updateCohesionParams(newParams.cohesionRadius, newParams.cohesionStrength)
+          break
+        case "mouseAvoidanceDistance":
+          updateMouseAvoidanceDistance(newParams.mouseAvoidanceDistance)
+          break
+      }
+      
+      return newParams
+    })
+  }, [updateSeparationParams, updateAlignmentParams, updateCohesionParams, updateMouseAvoidanceDistance])
+
+  return {
+    // 状態
+    isLoading,
+    error,
+    isPlaying,
+    boidCount,
+    parameters,
+    boids,
+    fps,
+    
+    // アクション
+    togglePlayPause,
+    reset,
+    setBoidCount: changeBoidCount,
+    setMousePosition,
+    updateParameter
+  }
+}
