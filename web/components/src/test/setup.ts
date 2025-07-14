@@ -89,10 +89,10 @@ const mockCanvas2DContext = {
 // HTMLCanvasElement のモック
 HTMLCanvasElement.prototype.getContext = vi.fn((contextId) => {
   if (contextId === "2d") {
-    return mockCanvas2DContext
+    return mockCanvas2DContext as any
   }
   return null
-})
+}) as any
 
 HTMLCanvasElement.prototype.toDataURL = vi.fn(() => "data:image/png;base64,")
 HTMLCanvasElement.prototype.toBlob = vi.fn()

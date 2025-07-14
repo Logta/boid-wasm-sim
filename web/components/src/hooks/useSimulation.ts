@@ -49,7 +49,7 @@ export function useSimulation() {
   const [parameters, setParameters] = useState<SimulationParameters>(DEFAULT_PARAMETERS)
   const [boids, setBoids] = useState<Boid[]>([])
 
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number>(0)
   
   const performance = usePerformanceMonitor(60, {
     onPerformanceWarning: (warning) => {

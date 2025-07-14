@@ -31,20 +31,37 @@ const mockWasm = {
   updateMouseAvoidanceDistance: mockUpdateMouseAvoidanceDistance,
 }
 
-// fetch のモック
-global.fetch = vi.fn().mockResolvedValue({
-  arrayBuffer: () => Promise.resolve(new ArrayBuffer(0))
+// Go WASM用のモック
+const mockGo = {
+  importObject: {},
+  run: vi.fn()
+}
+
+// fetchのモック（wasm_exec.jsとWASMファイル用）
+global.fetch = vi.fn((url) => {
+  if (url.includes('wasm_exec.js')) {
+    return Promise.resolve({
+      text: () => Promise.resolve('window.Go = function() { return { importObject: {}, run: function() {} }; };')
+    })
+  }
+  if (url.includes('.wasm')) {
+    return Promise.resolve({
+      arrayBuffer: () => Promise.resolve(new ArrayBuffer(0))
+    })
+  }
+  return Promise.reject(new Error('Unexpected fetch'))
 })
 
-// WebAssembly.instantiateStreaming のモック
+// WebAssembly.instantiate のモック
 global.WebAssembly = {
   ...global.WebAssembly,
-  instantiateStreaming: vi.fn().mockResolvedValue({
-    instance: {
-      exports: mockWasm
-    }
+  instantiate: vi.fn().mockResolvedValue({
+    instance: {}
   })
 }
+
+// グローバル関数としてモック関数を設定
+Object.assign(global, mockWasm)
 
 describe("useBoidWasm", () => {
   beforeEach(() => {
