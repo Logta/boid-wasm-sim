@@ -42,8 +42,8 @@ export function useBoidWasm() {
         setIsLoading(true)
         setError(null)
 
-        // Go WASMランタイムをロード
-        const wasmExecResponse = await fetch("/wasm_exec.js")
+        // Go WASMランタイムをロード（相対パスを使用）
+        const wasmExecResponse = await fetch("./wasm_exec.js")
         const wasmExecText = await wasmExecResponse.text()
 
         // wasm_exec.jsを実行してGoオブジェクトを作成
@@ -51,9 +51,9 @@ export function useBoidWasm() {
         script.textContent = wasmExecText
         document.head.appendChild(script)
 
-        // GoのWASMインスタンスを作成
+        // GoのWASMインスタンスを作成（相対パスを使用）
         const go = new window.Go()
-        const wasmResponse = await fetch("/boid.wasm")
+        const wasmResponse = await fetch("./boid.wasm")
         const wasmBytes = await wasmResponse.arrayBuffer()
         const wasmModule = await WebAssembly.instantiate(wasmBytes, go.importObject)
 
