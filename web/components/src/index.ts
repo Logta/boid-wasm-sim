@@ -10,25 +10,6 @@ export { ParameterPanel } from "./ParameterPanel"
 export { ParameterSlider } from "./ParameterSlider"
 export { SimulationControls } from "./SimulationControls"
 
-// hooks
-export { useBoidWasm } from "./hooks/useBoidWasm"
-export { useSimulation } from "./hooks/useSimulation"
-export { usePerformanceMonitor } from "./hooks/usePerformanceMonitor"
-
-// 型定義
-export type SimulationParameters = {
-  separationRadius: number
-  separationStrength: number
-  alignmentRadius: number
-  alignmentStrength: number
-  cohesionRadius: number
-  cohesionStrength: number
-  mouseAvoidanceDistance: number
-}
-
-export type Boid = {
-  x: number
-  y: number
-  vx: number
-  vy: number
-}
+// Hooks and Types (re-exported from @boid-wasm-sim/hooks)
+export { useBoidWasm, useSimulation, usePerformanceMonitor } from "@boid-wasm-sim/hooks"
+export type { SimulationParameters, Boid } from "@boid-wasm-sim/hooks"

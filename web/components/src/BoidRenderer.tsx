@@ -1,11 +1,5 @@
 import { useRef, useEffect } from "react"
-
-type Boid = {
-  x: number
-  y: number
-  vx: number
-  vy: number
-}
+import type { Boid } from "@boid-wasm-sim/hooks"
 
 type BoidRendererProps = {
   width: number
@@ -26,10 +20,10 @@ export function BoidRenderer({
 
   function drawBoid(ctx: CanvasRenderingContext2D, boid: Boid) {
     const size = 6
-    const angle = Math.atan2(boid.vy, boid.vx)
+    const angle = Math.atan2(boid.velocity.y, boid.velocity.x)
     
     ctx.save()
-    ctx.translate(boid.x, boid.y)
+    ctx.translate(boid.position.x, boid.position.y)
     ctx.rotate(angle)
     
     ctx.beginPath()

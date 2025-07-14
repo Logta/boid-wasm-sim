@@ -1,17 +1,7 @@
 import { BoidCountSelector } from "./BoidCountSelector"
 import { ParameterPanel } from "./ParameterPanel"
 import { SimulationControls } from "./SimulationControls"
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
-
-type SimulationParameters = {
-  separationRadius: number
-  separationStrength: number
-  alignmentRadius: number
-  alignmentStrength: number
-  cohesionRadius: number
-  cohesionStrength: number
-  mouseAvoidanceDistance: number
-}
+import type { SimulationParameters } from "@boid-wasm-sim/hooks"
 
 type SidebarProps = {
   boidCount: number
@@ -41,43 +31,31 @@ export function Sidebar({
         <div className="h-px bg-gradient-to-r from-blue-500 to-purple-500"></div>
       </div>
       
-      <div className="space-y-6">
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg text-blue-400">ボイド数</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <BoidCountSelector 
-              value={boidCount}
-              onChange={onBoidCountChange}
-            />
-          </CardContent>
-        </Card>
+      <div className="space-y-8">
+        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+          <h3 className="text-lg font-semibold mb-4 text-blue-400">ボイド数</h3>
+          <BoidCountSelector 
+            value={boidCount}
+            onChange={onBoidCountChange}
+          />
+        </div>
         
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg text-green-400">パラメータ</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ParameterPanel
-              parameters={parameters}
-              onParameterChange={onParameterChange}
-            />
-          </CardContent>
-        </Card>
+        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+          <h3 className="text-lg font-semibold mb-4 text-green-400">パラメータ</h3>
+          <ParameterPanel
+            parameters={parameters}
+            onParameterChange={onParameterChange}
+          />
+        </div>
         
-        <Card>
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg text-purple-400">シミュレーション制御</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <SimulationControls
-              isPlaying={isPlaying}
-              onPlayPause={onPlayPause}
-              onReset={onReset}
-            />
-          </CardContent>
-        </Card>
+        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+          <h3 className="text-lg font-semibold mb-4 text-purple-400">シミュレーション制御</h3>
+          <SimulationControls
+            isPlaying={isPlaying}
+            onPlayPause={onPlayPause}
+            onReset={onReset}
+          />
+        </div>
       </div>
     </aside>
   )

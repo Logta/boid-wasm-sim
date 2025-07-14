@@ -1,10 +1,10 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react"
+import { render, screen, fireEvent } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { App } from "./App"
 
 const createMockSimulation = () => ({
   isLoading: false,
-  error: null,
+  error: null as Error | null,
   isPlaying: false,
   boidCount: 100,
   parameters: {

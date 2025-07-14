@@ -1,4 +1,5 @@
 packages:
   - 'web/main'
   - 'web/components'
+  - 'web/hooks'
   - 'wasm'

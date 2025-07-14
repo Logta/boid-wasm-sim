@@ -1,11 +1,5 @@
 import { useState, useEffect, useCallback } from "react"
-
-type Boid = {
-  x: number
-  y: number
-  vx: number
-  vy: number
-}
+import type { Boid } from "./types"
 
 type WasmExports = {
   initializeSimulation: (count: number, width: number, height: number) => void
@@ -108,10 +102,15 @@ export function useBoidWasm() {
 
     for (let i = 0; i < count; i++) {
       boids.push({
-        x: wasmModule.getBoidPositionX(i),
-        y: wasmModule.getBoidPositionY(i),
-        vx: wasmModule.getBoidVelocityX(i),
-        vy: wasmModule.getBoidVelocityY(i)
+        id: i,
+        position: {
+          x: wasmModule.getBoidPositionX(i),
+          y: wasmModule.getBoidPositionY(i)
+        },
+        velocity: {
+          x: wasmModule.getBoidVelocityX(i),
+          y: wasmModule.getBoidVelocityY(i)
+        }
       })
     }
 

@@ -1,6 +1,3 @@
-import { Button } from "./ui/button"
-import { Play, Pause, RotateCcw } from "lucide-react"
-
 type SimulationControlsProps = {
   isPlaying: boolean
   onPlayPause: () => void
@@ -14,24 +11,21 @@ export function SimulationControls({
 }: SimulationControlsProps) {
   return (
     <div className="flex gap-3">
-      <Button
+      <button
         onClick={onPlayPause}
-        className="flex-1"
-        size="lg"
+        className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium flex items-center justify-center"
       >
-        {isPlaying ? <Pause className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
+        <span className="mr-2">{isPlaying ? "⏸️" : "▶️"}</span>
         {isPlaying ? "一時停止" : "再生"}
-      </Button>
+      </button>
       
-      <Button
+      <button
         onClick={onReset}
-        variant="destructive"
-        className="flex-1"
-        size="lg"
+        className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium flex items-center justify-center"
       >
-        <RotateCcw className="mr-2 h-4 w-4" />
+        <span className="mr-2">🔄</span>
         リセット
-      </Button>
+      </button>
     </div>
   )
 }

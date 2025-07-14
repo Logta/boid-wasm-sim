@@ -89,7 +89,7 @@ const mockCanvas2DContext = {
 // HTMLCanvasElement のモック
 HTMLCanvasElement.prototype.getContext = vi.fn((contextId) => {
   if (contextId === "2d") {
-    return mockCanvas2DContext
+    return mockCanvas2DContext as any
   }
   return null
 })

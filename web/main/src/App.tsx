@@ -1,10 +1,9 @@
 import { 
   Header, 
   Sidebar, 
-  BoidRenderer, 
-  useSimulation,
-  type SimulationParameters 
+  BoidRenderer
 } from "@boid-wasm-sim/components"
+import { useSimulation } from "@boid-wasm-sim/hooks"
 
 export function App() {
   const {

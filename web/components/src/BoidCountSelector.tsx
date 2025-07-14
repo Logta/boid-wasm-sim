@@ -1,11 +1,3 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select"
-
 type BoidCountSelectorProps = {
   value: number
   onChange: (value: number) => void
@@ -14,22 +6,18 @@ type BoidCountSelectorProps = {
 export function BoidCountSelector({ value, onChange }: BoidCountSelectorProps) {
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-muted-foreground">
+      <label className="block text-sm font-medium text-slate-300">
         ボイド数
       </label>
-      <Select 
-        value={value.toString()} 
-        onValueChange={(val) => onChange(Number(val))}
+      <select
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 cursor-pointer"
       >
-        <SelectTrigger className="w-full">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="100">🐦 100匹</SelectItem>
-          <SelectItem value="500">🐦 500匹</SelectItem>
-          <SelectItem value="1000">🐦 1000匹</SelectItem>
-        </SelectContent>
-      </Select>
+        <option value={100}>🐦 100匹</option>
+        <option value={500}>🐦 500匹</option>
+        <option value={1000}>🐦 1000匹</option>
+      </select>
     </div>
   )
 }

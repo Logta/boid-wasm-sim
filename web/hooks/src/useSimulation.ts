@@ -1,23 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { useBoidWasm } from "./useBoidWasm"
 import { usePerformanceMonitor } from "./usePerformanceMonitor"
-
-type SimulationParameters = {
-  separationRadius: number
-  separationStrength: number
-  alignmentRadius: number
-  alignmentStrength: number
-  cohesionRadius: number
-  cohesionStrength: number
-  mouseAvoidanceDistance: number
-}
-
-type Boid = {
-  x: number
-  y: number
-  vx: number
-  vy: number
-}
+import type { SimulationParameters, Boid } from "./types"
 
 const DEFAULT_PARAMETERS: SimulationParameters = {
   separationRadius: 25,

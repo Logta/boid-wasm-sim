@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "pnpm --filter @boid-wasm-sim/components build && pnpm --filter @boid-wasm-sim/wasm build && vite build",
+    "build": "pnpm --filter @boid-wasm-sim/hooks build && pnpm --filter @boid-wasm-sim/components build && pnpm --filter @boid-wasm-sim/wasm build && vite build",
     "build:only": "vite build",
     "preview": "vite preview",
     "test": "vitest",
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@boid-wasm-sim/components": "workspace:*",
+    "@boid-wasm-sim/hooks": "workspace:*",
     "@boid-wasm-sim/wasm": "workspace:*",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
