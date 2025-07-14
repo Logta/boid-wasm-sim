@@ -1,3 +1,8 @@
+[tools]
+go = "1.24.5"
+node = "24.4.0"
+pnpm = "latest"
+
 [tasks]
 # 開発用コマンド
 dev = "pnpm dev"

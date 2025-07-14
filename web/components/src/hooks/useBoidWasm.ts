@@ -33,11 +33,44 @@ export function useBoidWasm() {
         setIsLoading(true)
         setError(null)
 
-        // WASMモジュールをロード
-        const wasmPath = "/build/boid.wasm" // public配下のWASMファイル
-        const wasmModule = await WebAssembly.instantiateStreaming(fetch(wasmPath))
+        // Go WASMランタイムをロード
+        const wasmExecResponse = await fetch("/wasm_exec.js")
+        const wasmExecText = await wasmExecResponse.text()
         
-        setWasmModule(wasmModule.instance.exports as WasmExports)
+        // wasm_exec.jsを実行してGoオブジェクトを作成
+        const script = document.createElement('script')
+        script.textContent = wasmExecText
+        document.head.appendChild(script)
+
+        // GoのWASMインスタンスを作成
+        const go = new (window as any).Go()
+        const wasmResponse = await fetch("/boid.wasm")
+        const wasmBytes = await wasmResponse.arrayBuffer()
+        const wasmModule = await WebAssembly.instantiate(wasmBytes, go.importObject)
+        
+        // WASMを実行
+        go.run(wasmModule.instance)
+
+        // グローバル関数をラップ
+        const wasmExports: WasmExports = {
+          initializeSimulation: (window as any).initializeSimulation,
+          updateSimulation: (window as any).updateSimulation,
+          setMousePosition: (window as any).setMousePosition,
+          getBoidCount: (window as any).getBoidCount,
+          getBoidPositionX: (window as any).getBoidPositionX,
+          getBoidPositionY: (window as any).getBoidPositionY,
+          getBoidVelocityX: (window as any).getBoidVelocityX,
+          getBoidVelocityY: (window as any).getBoidVelocityY,
+          updateSeparationParams: (window as any).updateSeparationParams,
+          updateAlignmentParams: (window as any).updateAlignmentParams,
+          updateCohesionParams: (window as any).updateCohesionParams,
+          updateMouseAvoidanceDistance: (window as any).updateMouseAvoidanceDistance,
+        }
+        
+        setWasmModule(wasmExports)
+        
+        // スクリプトをクリーンアップ
+        document.head.removeChild(script)
       } catch (err) {
         setError(err instanceof Error ? err : new Error("Unknown WASM load error"))
         setWasmModule(null)

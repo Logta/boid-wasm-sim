@@ -1,22 +1,22 @@
 {
   "name": "@boid-wasm-sim/wasm",
   "version": "1.0.0",
+  "description": "WASM module for boid simulation using Go",
   "type": "module",
   "scripts": {
-    "build": "pnpm build:release",
-    "build:release": "asc assembly/index.ts --target release --outFile build/boid.wasm --bindings esm --exportRuntime",
-    "build:debug": "asc assembly/index.ts --target debug --outFile build/boid.debug.wasm --bindings esm --exportRuntime",
-    "build:watch": "nodemon --watch assembly --ext ts --exec \"pnpm build:debug\"",
-    "dev": "pnpm build:debug",
-    "clean": "rm -rf build",
-    "rebuild": "pnpm clean && pnpm build",
-    "test": "as-pect",
-    "test:ci": "as-pect --summary",
-    "validate": "asc assembly/index.ts --validate"
+    "build": "mise exec -- env GOOS=js GOARCH=wasm go build -o boid.wasm . && cp boid.wasm ../web/main/public/ && cp wasm_exec.js ../web/main/public/",
+    "build:debug": "mise exec -- env GOOS=js GOARCH=wasm go build -gcflags='-N -l' -o boid.wasm . && cp boid.wasm ../web/main/public/ && cp wasm_exec.js ../web/main/public/",
+    "test": "mise exec -- go test -v .",
+    "test:watch": "mise exec -- go test -v . --watch",
+    "clean": "rm -f *.wasm",
+    "dev": "pnpm build:debug"
   },
-  "devDependencies": {
-    "assemblyscript": "^0.27.30",
-    "@as-pect/cli": "^8.1.0",
-    "nodemon": "^3.1.7"
+  "files": [
+    "*.wasm",
+    "wasm_exec.js"
+  ],
+  "exports": {
+    "./boid.wasm": "./boid.wasm",
+    "./wasm_exec.js": "./wasm_exec.js"
   }
 }
