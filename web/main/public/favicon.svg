@@ -1,0 +1,36 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" rx="8" fill="#0a0f1b"/>
+  
+  <!-- Simplified boid shapes -->
+  <defs>
+    <linearGradient id="boidGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Main boid group forming a V-shape -->
+  <!-- Center/Lead boid -->
+  <path d="M 16 8 L 20 16 L 16 14 L 12 16 Z" 
+        fill="url(#boidGrad)" 
+        stroke="#ffffff" 
+        stroke-width="0.5"/>
+  
+  <!-- Left boid -->
+  <path d="M 8 14 L 11 20 L 8 19 L 5 20 Z" 
+        fill="#3b82f6" 
+        stroke="#ffffff" 
+        stroke-width="0.5"/>
+  
+  <!-- Right boid -->
+  <path d="M 24 14 L 27 20 L 24 19 L 21 20 Z" 
+        fill="#3b82f6" 
+        stroke="#ffffff" 
+        stroke-width="0.5"/>
+  
+  <!-- Simple motion indicator -->
+  <circle cx="16" cy="24" r="1" fill="#60a5fa" opacity="0.6"/>
+  <circle cx="12" cy="26" r="1" fill="#60a5fa" opacity="0.4"/>
+  <circle cx="20" cy="26" r="1" fill="#60a5fa" opacity="0.4"/>
+</svg>

@@ -1,0 +1,35 @@
+{
+  "name": "@boid-wasm-sim/web",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "pnpm --filter @boid-wasm-sim/hooks build && pnpm --filter @boid-wasm-sim/components build && pnpm --filter @boid-wasm-sim/wasm build && vite build",
+    "build:only": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@boid-wasm-sim/components": "workspace:*",
+    "@boid-wasm-sim/hooks": "workspace:*",
+    "@boid-wasm-sim/wasm": "workspace:*",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "@vitest/ui": "^3.2.4",
+    "autoprefixer": "^10.4.20",
+    "jsdom": "^26.0.0",
+    "postcss": "^8.5.0",
+    "tailwindcss": "^3.4.16",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.4",
+    "vitest": "^3.2.4"
+  }
+}

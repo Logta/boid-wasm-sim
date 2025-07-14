@@ -1,35 +1,64 @@
 [tools]
-node = "24"
+go = "1.24.5"
+node = "24.4.0"
 pnpm = "latest"
 
-[env]
-NODE_ENV = "development"
+[tasks]
+# 開発用コマンド
+dev = "pnpm dev"
+start = "pnpm dev"
 
-[tasks.install]
-description = "Install all dependencies"
-run = "pnpm install"
+# ビルド関連
+build = "pnpm build"
+build-all = "pnpm build:all"
+rebuild = "pnpm rebuild"
+clean = "pnpm clean"
 
-[tasks.dev]
-description = "Start development servers (parallel)"
-run = "pnpm dev"
+# 個別パッケージビルド
+build-components = "pnpm components:build"
+build-wasm = "pnpm wasm:build"
+build-web = "pnpm web:build"
 
-[tasks.web]
-description = "Start web development server only"
-run = "pnpm web:dev"
+# 開発用（個別パッケージ）
+dev-components = "pnpm components:dev"
+dev-wasm = "pnpm wasm:dev"
+dev-web = "pnpm web:dev"
 
-[tasks.wasm]
-description = "Build WASM module"
-run = "pnpm wasm:build"
+# テスト関連
+test = "pnpm test"
+test-all = "pnpm test:all"
+test-components = "pnpm components:test"
+test-wasm = "pnpm wasm:test"
+test-web = "pnpm web:test"
 
-[tasks.build]
-description = "Build entire project"
-run = "pnpm build"
+# 型チェック・リント
+typecheck = "pnpm typecheck"
+lint = "pnpm lint"
+lint-fix = "pnpm lint:fix"
+format = "pnpm format:fix"
+format-check = "pnpm format:check"
+check = "pnpm check"
+check-fix = "pnpm check:fix"
 
-[tasks.setup]
-description = "Initial setup: install deps and build WASM"
-run = [
-  "pnpm install",
-  "pnpm wasm:build",
-  "mkdir -p web/public/wasm",
-  "cp wasm/build/boid.wasm web/public/wasm/"
-]
+# プレビュー
+preview = "pnpm web:preview"
+
+# 依存関係管理
+install = "pnpm install"
+update = "pnpm update"
+
+# CI用
+ci-install = "pnpm install --frozen-lockfile"
+ci-build = "pnpm build:all"
+ci-test = "pnpm test:all"
+ci-check = "pnpm typecheck && pnpm lint"
+
+# GitHub Actions用
+gh-setup = "mise install && pnpm install"
+gh-test = "pnpm --filter @boid-wasm-sim/wasm test && pnpm --filter @boid-wasm-sim/hooks test && pnpm --filter @boid-wasm-sim/web test"
+gh-build = "pnpm --filter @boid-wasm-sim/wasm build && pnpm --filter @boid-wasm-sim/hooks build && pnpm --filter @boid-wasm-sim/components build && pnpm --filter @boid-wasm-sim/web build"
+gh-deploy = "cd web/main && VITE_BASE_PATH=/boid-wasm-sim/ pnpm build"
+
+# セキュリティチェック
+security-audit = "pnpm audit --audit-level moderate"
+security-check = "pnpm audit"

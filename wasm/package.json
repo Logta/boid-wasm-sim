@@ -1,14 +1,20 @@
 {
   "name": "@boid-wasm-sim/wasm",
   "version": "1.0.0",
-  "private": true,
+  "description": "WASM module for boid simulation using Go",
   "type": "module",
   "scripts": {
-    "build": "asc src/core/index.ts --target release --outFile build/boid.wasm --exportRuntime",
-    "build:debug": "asc src/core/index.ts --target debug --outFile build/boid.wasm --exportRuntime --sourceMap",
-    "dev": "npm run build:debug -- --watch"
+    "build": "env GOOS=js GOARCH=wasm go build -o boid.wasm . && cp boid.wasm ../web/main/public/",
+    "build:debug": "env GOOS=js GOARCH=wasm go build -gcflags='-N -l' -o boid.wasm . && cp boid.wasm ../web/main/public/",
+    "dev": "pnpm build:debug",
+    "test": "go test -v .",
+    "clean": "rm -f *.wasm ../web/main/public/boid.wasm"
   },
-  "devDependencies": {
-    "assemblyscript": "^0.28.3"
-  }
+  "files": [
+    "*.go",
+    "go.mod",
+    "go.sum",
+    "wasm_exec.js",
+    "README.md"
+  ]
 }
