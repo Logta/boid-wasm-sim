@@ -1,13 +1,11 @@
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
-import tailwindcss from "@tailwindcss/vite"
 import { copyFileSync, existsSync, mkdirSync } from "fs"
 import { join } from "path"
 
 export default defineConfig({
   plugins: [
-    react(), 
-    tailwindcss(),
+    react(),
     {
       name: "copy-wasm",
       buildStart() {
