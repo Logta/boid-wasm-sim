@@ -1,25 +1,25 @@
 # boid-wasm-sim
 
-Craig ReynoldsのBoidモデルを参考に作成したシンプルな群れシミュレーションです。
+Craig ReynoldsのBoidモデルを参考に、群れシミュレーションを学習目的で実装してみました。
 
 ## 概要
 
-基本的な群れの動きをリアルタイムで表示するWebアプリケーションです。Goで実装したWebAssemblyモジュールとReactフロントエンドで構成されています。t-wadaのTDD手法を参考に開発しました。
+基本的な群れの動きをWebブラウザで表示できるシンプルなアプリケーションです。GoのWebAssemblyとReactで構成されており、t-wadaのTDD手法を参考に開発を進めました。
 
 ## 特徴
 
-- Go WebAssemblyによる計算処理
-- 78のテストケースによる動作確認
+- Go WebAssemblyによる計算処理（空間分割アルゴリズムで最適化）
+- 必要最小限のテストによる品質保証
 - リアルタイムパラメータ調整
-- Tailwind CSS v4を使用したUI
-- pnpm workspaceによるプロジェクト管理
+- シンプルなUI設計
+- pnpm workspaceによるモノレポ構成
 
 ## 必要環境
 
-- [mise](https://github.com/jdx/mise) - 開発環境管理ツール
-- Go 1.24.5（mise で自動インストール）
-- Node.js 24.4.0（mise で自動インストール）
-- pnpm（mise で自動インストール）
+- [mise](https://github.com/jdx/mise) - 開発環境管理
+- Go 1.24.5（mise で管理）
+- Node.js 24.4.0（mise で管理）
+- pnpm（mise で管理）
 
 ## セットアップ
 
@@ -34,22 +34,18 @@ mise trust
 # 依存関係のインストール
 pnpm install
 
-# WASMランタイムのセットアップ
-pnpm wasm:copy-runtime
+# WASMモジュールのビルド
+pnpm --filter @boid-wasm-sim/wasm build
 ```
 
 ## 開発
 
 ```bash
-# 開発サーバーの起動（全パッケージ並行起動）
-pnpm dev
-# または
-mise run dev
+# 開発サーバーの起動
+cd web/main && pnpm dev
 
-# 個別パッケージの開発
-pnpm web:dev        # Webアプリケーションのみ
-pnpm wasm:dev       # Go WASMモジュールのみ
-pnpm components:dev # UIコンポーネントのみ
+# WASMモジュールの開発
+pnpm --filter @boid-wasm-sim/wasm build
 ```
 
 開発サーバーは http://localhost:5173/ で起動します。
@@ -57,49 +53,24 @@ pnpm components:dev # UIコンポーネントのみ
 ## ビルド
 
 ```bash
-# 全パッケージのビルド（依存関係順）
-pnpm build
+# WASMモジュールのビルド
+pnpm --filter @boid-wasm-sim/wasm build
 
-# 個別パッケージのビルド
-pnpm components:build  # UIコンポーネント
-pnpm wasm:build       # Go WASMモジュール
-pnpm web:build        # Webアプリケーション
-
-# クリーンビルド
-pnpm clean && pnpm build
+# Webアプリのビルド
+pnpm --filter @boid-wasm-sim/web build
 ```
 
 ## テスト
 
 ```bash
-# 全テストの実行
-pnpm test
+# WASMコアロジックのテスト（最も重要）
+pnpm --filter @boid-wasm-sim/wasm test
 
-# 個別パッケージのテスト
-pnpm components:test  # UIコンポーネントテスト (64テスト)
-pnpm wasm:test       # Go WASMモジュールテスト (18テスト)
-pnpm web:test        # Webアプリケーションテスト (14テスト)
+# 型安全性のテスト
+pnpm --filter @boid-wasm-sim/hooks test
 
-# 全テスト（WASMテスト含む）
-pnpm test:all
-```
-
-## コード品質
-
-```bash
-# リント
-pnpm lint
-pnpm lint:fix  # 自動修正
-
-# フォーマット
-pnpm format:fix
-
-# 型チェック
-pnpm typecheck
-
-# 全チェック
-pnpm check
-pnpm check:fix  # 自動修正
+# 基本統合テスト
+pnpm --filter @boid-wasm-sim/web test
 ```
 
 ## プロジェクト構成
@@ -107,86 +78,49 @@ pnpm check:fix  # 自動修正
 ```
 boid-wasm-sim/
 ├── web/
-│   ├── components/       # @boid-wasm-sim/components - UIコンポーネントライブラリ
-│   │   ├── src/
-│   │   │   ├── *.tsx    # Reactコンポーネント
-│   │   │   ├── *.test.tsx # テストファイル (64テスト)
-│   │   │   ├── hooks/   # カスタムフック
-│   │   │   └── index.ts # エクスポート定義
-│   │   └── package.json
-│   └── main/            # @boid-wasm-sim/web - メインアプリケーション
-│       ├── src/
-│       │   ├── App.tsx   # メインアプリ
-│       │   └── main.tsx  # エントリーポイント
-│       ├── public/
-│       │   ├── boid.wasm     # Go WASMモジュール (約2MB)
-│       │   └── wasm_exec.js  # Go WASMランタイム
-│       ├── index.html
-│       └── package.json
-├── wasm/               # @boid-wasm-sim/wasm - Go WASMモジュール
-│   ├── *.go            # Goソースファイル
-│   ├── *_test.go       # テストファイル (18テスト)
-│   ├── go.mod          # Goモジュール定義
-│   ├── boid.wasm       # ビルド済みWASMファイル
-│   ├── wasm_exec.js    # Go WASMランタイム
+│   ├── hooks/              # カスタムフック（型テスト含む）
+│   ├── components/         # UIコンポーネント
+│   └── main/              # メインアプリ
+├── wasm/                  # Go WebAssemblyモジュール
+│   ├── *.go               # コアロジック
+│   ├── *_test.go          # 充実したテストスイート
+│   ├── spatial_grid.go    # 空間分割最適化
 │   └── package.json
-├── package.json        # ワークスペース設定
-├── pnpm-workspace.yaml # pnpm設定
-├── .mise.toml         # 開発環境設定
-└── biome.json         # リント・フォーマット設定
+├── CLAUDE.md              # 開発指針
+└── .mise.toml            # 環境設定
 ```
-
-### パッケージ構成
-
-- **@boid-wasm-sim/components**: 再利用可能なUIコンポーネント (React + TypeScript)
-- **@boid-wasm-sim/web**: メインWebアプリケーション (Vite + React)
-- **@boid-wasm-sim/wasm**: Go WebAssemblyによるボイドシミュレーション
 
 ## 機能
 
-### コア機能
-- 分離・整列・結合の3つの基本的な群れ行動
-- マウスカーソルからの回避行動
-- トーラス境界でのシームレスな画面ループ
+### 基本動作
+- **分離**: 近すぎる個体から離れる
+- **整列**: 周囲の個体と速度を合わせる
+- **結合**: 群れの中心に向かう
+- **回避**: マウスカーソルを避ける
 
-### UI機能
-- 各パラメータのスライダー調整
-- 再生・一時停止・リセット操作
-- ボイド数の切り替え（100・500・1000匹）
-- パフォーマンス情報の表示（FPS等）
+### パフォーマンス
+- 空間分割アルゴリズムによりO(n²)→O(n)に最適化
+- 100匹: 安定した60fps以上
+- 500匹: 50-60fps
+- 1000匹: 30-40fps程度
 
 ### 調整可能なパラメータ
-- 分離行動の半径と強度
-- 整列行動の半径と強度
-- 結合行動の半径と強度
+- 各行動の影響半径と強度
 - マウス回避距離
+- ボイド数（100・500・1000匹）
 
-## 技術スタック
+## 技術的な工夫
 
-### フロントエンド
-- React + TypeScript
-- Vite 6.3（ビルドツール）
-- Tailwind CSS v4（スタイリング）
-- 自作UIコンポーネントライブラリ
-- Vitest + React Testing Library（テスト）
+### アーキテクチャ
+- **WASM**: 計算集約的な処理をGoで実装
+- **React**: UI状態管理とレンダリング
+- **バッチAPI**: WASM-JS間の通信を最適化
 
-### WebAssembly
-- Go 1.24.5
-- 約2MBのWASMファイル
-- Go WASMランタイム
-- Go標準テストツール
-
-### 開発環境
-- pnpm workspace（パッケージ管理）
-- mise（環境管理）
-- Biome（lint + format）
-
-## パフォーマンス
-
-学習目的で作成したため、最適化の余地があります：
-- 60FPSでの動作を目標
-- 1000ボイドまで対応
-- WebAssemblyによる計算処理
+### 最適化
+- 距離計算で平方根を回避（二乗距離で比較）
+- 背景の事前レンダリング
+- グラデーションの再利用
+- デバッグログの削除
 
 ## ライセンス
 

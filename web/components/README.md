@@ -1,39 +1,37 @@
 # @boid-wasm-sim/components
 
-Boidシミュレーションアプリケーション用のReactコンポーネントライブラリ
+ボイドシミュレーションアプリで使用するシンプルなUIコンポーネント集です。
 
 ## 概要
 
-このパッケージは、boid-wasm-simアプリケーションで使用されるUIコンポーネントを提供します。すべてのコンポーネントはTDD（テスト駆動開発）で作成されており、Tailwind CSS v4を使用してスタイリングされています。
+必要最小限の機能に絞ったReactコンポーネントを提供します。t-wadaのTDD原則に従い、価値のあるコンポーネントのみを実装しています。
 
-## コンポーネント一覧
+## 主要コンポーネント
 
-### レイアウトコンポーネント
+### メインコンポーネント
 - `Header` - アプリケーションヘッダー
-- `Sidebar` - サイドバーコントロールパネル
+- `Sidebar` - パラメータ調整サイドバー  
+- `BoidRenderer` - Canvas描画エンジン
 
-### 描画コンポーネント
-- `BoidRenderer` - Canvasを使ったboid描画エンジン
-- `SimulationCanvas` - シミュレーション表示領域
+### 基本UIコンポーネント
+- `Button` - 汎用ボタン
+- `Slider` - パラメータスライダー
+- `Select` - セレクトボックス
+- `Badge` - 情報表示
+- `Card` - コンテナ
 
-### 制御コンポーネント
-- `BoidCountSelector` - boid数選択（100/500/1000）
-- `ParameterPanel` - シミュレーションパラメータ調整パネル
-- `ParameterSlider` - パラメータ調整用スライダー
-- `SimulationControls` - 再生/一時停止/リセットボタン
-
-## 使用方法
+## 使用例
 
 ```tsx
 import { Sidebar, BoidRenderer, Header } from "@boid-wasm-sim/components"
 
 function App() {
   return (
-    <div className="flex h-screen bg-gray-900 text-white">
+    <div className="flex h-screen">
       <Sidebar
-        boidCount={100}
-        isPlaying={false}
-        parameters={params}
+        boidCount={boidCount}
+        isPlaying={isPlaying}
+        parameters={parameters}
         onBoidCountChange={setBoidCount}
         onPlayPause={togglePlayPause}
         onReset={reset}
@@ -55,36 +53,9 @@ function App() {
 }
 ```
 
-## 型定義
-
-```typescript
-export type SimulationParameters = {
-  separationRadius: number
-  separationStrength: number
-  alignmentRadius: number
-  alignmentStrength: number
-  cohesionRadius: number
-  cohesionStrength: number
-  mouseAvoidanceDistance: number
-}
-
-export type Boid = {
-  x: number
-  y: number
-  vx: number
-  vy: number
-}
-```
-
 ## 開発
 
 ```bash
-# テスト実行
-pnpm test
-
-# テスト（UI付き）
-pnpm test:ui
-
 # ビルド
 pnpm build
 
@@ -92,14 +63,8 @@ pnpm build
 pnpm dev
 ```
 
-## 技術スタック
+## 技術構成
 
-- React 19
-- TypeScript
-- Tailwind CSS v4
-- Vitest（テスト）
-- Testing Library（Reactテスト）
-
-## テスト
-
-すべてのコンポーネントはt-wadaのTDDアプローチで開発されており、包括的なテストスイートを持っています。
+- React 19 + TypeScript
+- Tailwind CSS（スタイリング）
+- Vite（ビルドツール）

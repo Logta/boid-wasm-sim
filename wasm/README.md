@@ -2,61 +2,54 @@
 
 ## 概要
 
-GoでビルドされたWebAssemblyモジュールです。ボイドシミュレーションのコア計算を高速に実行します。
+Goで実装したボイドシミュレーションのコア計算部分です。空間分割アルゴリズムにより、大量のボイドでも効率的に動作するよう工夫しました。
 
-## ファイル構成
+## ビルドとテスト
 
-```
-wasm/
-├── *.go              # Goソースファイル
-├── *_test.go         # テストファイル
-├── go.mod            # Goモジュール定義
-├── package.json      # npm/pnpmスクリプト定義
-├── boid.wasm         # ビルド済みWASMファイル（開発用）
-├── wasm_exec.js      # Go WASMランタイム
-└── README.md         # このファイル
-```
-
-## ビルドとデプロイ
-
-### 開発ビルド
 ```bash
+# WASMモジュールのビルド
+pnpm build
+
+# テスト実行（コアロジックの品質保証）
+pnpm test
+
+# 開発用ビルド（デバッグ情報付き）
 pnpm dev
 ```
 
-### プロダクションビルド  
-```bash
-pnpm build
-```
+## 主要ファイル
 
-### テスト実行
-```bash
-pnpm test
-```
+- `simulation.go` - 群れ行動のコアロジック
+- `spatial_grid.go` - 空間分割による最適化
+- `vector.go` - ベクトル演算
+- `boid.go` - ボイド個体の定義
+- `main.go` - JavaScript連携とエクスポート
 
-### ファイル配置
+## エクスポート関数
 
-- **開発用**: `wasm/boid.wasm` - ローカル開発とテスト用
-- **本番用**: `web/main/public/boid.wasm` - Webアプリから読み込み
-- **ランタイム**: `web/main/public/wasm_exec.js` - Go WASMランタイム（安定版）
+JavaScript側から利用可能な関数：
 
-## WASMファイル管理
-
-- `boid.wasm`はビルド時に自動生成され、`web/main/public/`にコピーされます
-- `wasm_exec.js`は安定版のためGitで管理されます
-- 生成されたWASMファイルは`.gitignore`により除外されます
-
-## 関数エクスポート
-
-JavaScriptから呼び出し可能な関数：
-
+### 基本操作
 - `initializeSimulation(count, width, height)` - シミュレーション初期化
 - `updateSimulation()` - 1フレーム更新
 - `setMousePosition(x, y)` - マウス位置設定
+
+### データ取得
 - `getBoidCount()` - ボイド数取得
-- `getBoidPositionX/Y(index)` - ボイド位置取得
-- `getBoidVelocityX/Y(index)` - ボイド速度取得
-- `updateSeparationParams(radius, strength)` - 分離パラメータ更新
-- `updateAlignmentParams(radius, strength)` - 整列パラメータ更新
-- `updateCohesionParams(radius, strength)` - 結合パラメータ更新
-- `updateMouseAvoidanceDistance(distance)` - マウス回避距離更新
+- `getAllBoidData()` - 全ボイドデータの効率的な一括取得
+
+### パラメータ調整
+- `updateSeparationParams(radius, strength)` - 分離行動
+- `updateAlignmentParams(radius, strength)` - 整列行動  
+- `updateCohesionParams(radius, strength)` - 結合行動
+- `updateMouseAvoidanceDistance(distance)` - マウス回避距離
+
+## 最適化
+
+### 空間分割アルゴリズム
+- O(n²) → O(n)の計算量改善
+- 75x75ピクセルのグリッドで近隣探索を高速化
+
+### 計算最適化
+- 距離計算で平方根を回避（二乗距離で比較）
+- バッチAPIによるJavaScript連携の効率化
