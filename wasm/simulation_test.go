@@ -27,6 +27,9 @@ func TestBoidSeparation(t *testing.T) {
 		SeparationStrength: 1.0,
 	}
 	
+	// Initialize spatial grid
+	spatialGrid = NewSpatialGrid(800.0, 600.0, 75.0)
+	
 	// Create two boids close to each other
 	boid1 := NewBoid(0.0, 0.0)
 	boid1.Velocity = Vector2{X: 0.0, Y: 0.0}
@@ -35,7 +38,13 @@ func TestBoidSeparation(t *testing.T) {
 	
 	boids = []Boid{boid1, boid2}
 	
-	force := boid1.separate()
+	// Populate spatial grid
+	spatialGrid.Clear()
+	for i := range boids {
+		spatialGrid.Insert(i, boids[i].Position)
+	}
+	
+	force := boid1.separate(0)
 	
 	// Force should point away from the other boid (negative X direction)
 	if force.X >= 0 {
@@ -44,6 +53,7 @@ func TestBoidSeparation(t *testing.T) {
 	
 	// Reset global state
 	boids = nil
+	spatialGrid = nil
 }
 
 func TestBoidAlignment(t *testing.T) {
@@ -52,6 +62,9 @@ func TestBoidAlignment(t *testing.T) {
 		AlignmentRadius:   60.0,
 		AlignmentStrength: 1.0,
 	}
+	
+	// Initialize spatial grid
+	spatialGrid = NewSpatialGrid(800.0, 600.0, 75.0)
 	
 	// Create boids with different velocities
 	boid1 := NewBoid(0.0, 0.0)
@@ -64,7 +77,13 @@ func TestBoidAlignment(t *testing.T) {
 	
 	boids = []Boid{boid1, boid2}
 	
-	force := boid1.align()
+	// Populate spatial grid
+	spatialGrid.Clear()
+	for i := range boids {
+		spatialGrid.Insert(i, boids[i].Position)
+	}
+	
+	force := boid1.align(0)
 	
 	// Force should point in the direction of other boids' velocities
 	if force.X <= 0 {
@@ -73,6 +92,7 @@ func TestBoidAlignment(t *testing.T) {
 	
 	// Reset global state
 	boids = nil
+	spatialGrid = nil
 }
 
 func TestBoidCohesion(t *testing.T) {
@@ -81,6 +101,9 @@ func TestBoidCohesion(t *testing.T) {
 		CohesionRadius:   60.0,
 		CohesionStrength: 1.0,
 	}
+	
+	// Initialize spatial grid
+	spatialGrid = NewSpatialGrid(800.0, 600.0, 75.0)
 	
 	// Create boids
 	boid1 := NewBoid(0.0, 0.0)
@@ -92,7 +115,13 @@ func TestBoidCohesion(t *testing.T) {
 	
 	boids = []Boid{boid1, boid2}
 	
-	force := boid1.cohesion()
+	// Populate spatial grid
+	spatialGrid.Clear()
+	for i := range boids {
+		spatialGrid.Insert(i, boids[i].Position)
+	}
+	
+	force := boid1.cohesion(0)
 	
 	// Force should point toward the center of other boids
 	if force.X <= 0 {
@@ -101,6 +130,7 @@ func TestBoidCohesion(t *testing.T) {
 	
 	// Reset global state
 	boids = nil
+	spatialGrid = nil
 }
 
 func TestBoidAvoidMouse(t *testing.T) {
@@ -145,16 +175,25 @@ func TestBoidNoSelfInteraction(t *testing.T) {
 		CohesionStrength:   1.0,
 	}
 	
+	// Initialize spatial grid
+	spatialGrid = NewSpatialGrid(800.0, 600.0, 75.0)
+	
 	// Create single boid
 	boid := NewBoid(0.0, 0.0)
 	boid.Velocity = Vector2{X: 1.0, Y: 0.0}
 	
 	boids = []Boid{boid}
 	
+	// Populate spatial grid
+	spatialGrid.Clear()
+	for i := range boids {
+		spatialGrid.Insert(i, boids[i].Position)
+	}
+	
 	// Test that boid doesn't interact with itself
-	sepForce := boid.separate()
-	alignForce := boid.align()
-	cohForce := boid.cohesion()
+	sepForce := boid.separate(0)
+	alignForce := boid.align(0)
+	cohForce := boid.cohesion(0)
 	
 	zeroVec := Vector2{X: 0.0, Y: 0.0}
 	
@@ -172,6 +211,7 @@ func TestBoidNoSelfInteraction(t *testing.T) {
 	
 	// Reset global state
 	boids = nil
+	spatialGrid = nil
 }
 
 func TestBoidForcesOutsideRadius(t *testing.T) {
@@ -185,6 +225,9 @@ func TestBoidForcesOutsideRadius(t *testing.T) {
 		CohesionStrength:   1.0,
 	}
 	
+	// Initialize spatial grid
+	spatialGrid = NewSpatialGrid(800.0, 600.0, 75.0)
+	
 	// Create boids far apart
 	boid1 := NewBoid(0.0, 0.0)
 	boid1.Velocity = Vector2{X: 0.0, Y: 0.0}
@@ -193,9 +236,15 @@ func TestBoidForcesOutsideRadius(t *testing.T) {
 	
 	boids = []Boid{boid1, boid2}
 	
-	sepForce := boid1.separate()
-	alignForce := boid1.align()
-	cohForce := boid1.cohesion()
+	// Populate spatial grid
+	spatialGrid.Clear()
+	for i := range boids {
+		spatialGrid.Insert(i, boids[i].Position)
+	}
+	
+	sepForce := boid1.separate(0)
+	alignForce := boid1.align(0)
+	cohForce := boid1.cohesion(0)
 	
 	zeroVec := Vector2{X: 0.0, Y: 0.0}
 	
@@ -213,4 +262,5 @@ func TestBoidForcesOutsideRadius(t *testing.T) {
 	
 	// Reset global state
 	boids = nil
+	spatialGrid = nil
 }

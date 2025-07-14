@@ -76,37 +76,6 @@ func getBoidCount(this js.Value, args []js.Value) interface{} {
 	return len(boids)
 }
 
-func getBoidPositionX(this js.Value, args []js.Value) interface{} {
-	index := args[0].Int()
-	if index < 0 || index >= len(boids) {
-		return 0.0
-	}
-	return boids[index].Position.X
-}
-
-func getBoidPositionY(this js.Value, args []js.Value) interface{} {
-	index := args[0].Int()
-	if index < 0 || index >= len(boids) {
-		return 0.0
-	}
-	return boids[index].Position.Y
-}
-
-func getBoidVelocityX(this js.Value, args []js.Value) interface{} {
-	index := args[0].Int()
-	if index < 0 || index >= len(boids) {
-		return 0.0
-	}
-	return boids[index].Velocity.X
-}
-
-func getBoidVelocityY(this js.Value, args []js.Value) interface{} {
-	index := args[0].Int()
-	if index < 0 || index >= len(boids) {
-		return 0.0
-	}
-	return boids[index].Velocity.Y
-}
 
 func updateSeparationParams(this js.Value, args []js.Value) interface{} {
 	params.SeparationRadius = args[0].Float()
@@ -164,10 +133,6 @@ func main() {
 	js.Global().Set("updateSimulation", js.FuncOf(updateSimulation))
 	js.Global().Set("setMousePosition", js.FuncOf(setMousePosition))
 	js.Global().Set("getBoidCount", js.FuncOf(getBoidCount))
-	js.Global().Set("getBoidPositionX", js.FuncOf(getBoidPositionX))
-	js.Global().Set("getBoidPositionY", js.FuncOf(getBoidPositionY))
-	js.Global().Set("getBoidVelocityX", js.FuncOf(getBoidVelocityX))
-	js.Global().Set("getBoidVelocityY", js.FuncOf(getBoidVelocityY))
 	js.Global().Set("updateSeparationParams", js.FuncOf(updateSeparationParams))
 	js.Global().Set("updateAlignmentParams", js.FuncOf(updateAlignmentParams))
 	js.Global().Set("updateCohesionParams", js.FuncOf(updateCohesionParams))
