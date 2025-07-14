@@ -4,6 +4,7 @@ import { copyFileSync, existsSync, mkdirSync } from "fs"
 import { join } from "path"
 
 export default defineConfig({
+  base: process.env.VITE_BASE_PATH || "/",
   plugins: [
     react(),
     {

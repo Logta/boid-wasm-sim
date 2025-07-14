@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test and Lint
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20]
+        go-version: [1.24]
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install mise
+        uses: jdx/mise-action@v2
+        with:
+          version: latest
+      
+      - name: Setup development environment
+        run: mise install
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Lint and format check
+        run: |
+          pnpm lint
+          pnpm format:check
+      
+      - name: Type check
+        run: pnpm typecheck
+      
+      - name: Run WASM tests (Core Logic)
+        run: pnpm --filter @boid-wasm-sim/wasm test
+      
+      - name: Run TypeScript tests
+        run: |
+          pnpm --filter @boid-wasm-sim/hooks test
+          pnpm --filter @boid-wasm-sim/web test
+      
+      - name: Build WASM module
+        run: pnpm --filter @boid-wasm-sim/wasm build
+      
+      - name: Build web application
+        run: |
+          pnpm --filter @boid-wasm-sim/hooks build
+          pnpm --filter @boid-wasm-sim/components build
+          pnpm --filter @boid-wasm-sim/web build
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: build-artifacts
+          path: |
+            web/main/dist/
+            wasm/boid.wasm
+          retention-days: 7
+
+  security:
+    name: Security Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install mise
+        uses: jdx/mise-action@v2
+      
+      - name: Setup development environment
+        run: mise install
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Security audit
+        run: pnpm audit
+        continue-on-error: true
+      
+      - name: Check for vulnerabilities
+        run: |
+          echo "Checking for known vulnerabilities..."
+          pnpm audit --audit-level moderate || echo "Security audit completed with warnings"

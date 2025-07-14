@@ -1,0 +1,86 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build for GitHub Pages
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install mise
+        uses: jdx/mise-action@v2
+        with:
+          version: latest
+      
+      - name: Setup development environment
+        run: mise install
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Build WASM module
+        run: pnpm --filter @boid-wasm-sim/wasm build
+      
+      - name: Build web packages
+        run: |
+          pnpm --filter @boid-wasm-sim/hooks build
+          pnpm --filter @boid-wasm-sim/components build
+      
+      - name: Build web application for GitHub Pages
+        run: |
+          cd web/main
+          pnpm build
+        env:
+          # GitHub Pagesのベースパスを設定（リポジトリ名に応じて調整）
+          VITE_BASE_PATH: /boid-wasm-sim/
+      
+      - name: Verify build output
+        run: |
+          echo "Build output contents:"
+          ls -la web/main/dist/
+          echo "WASM files:"
+          ls -la web/main/dist/*.wasm || echo "No WASM files found in dist"
+          ls -la web/main/public/*.wasm || echo "No WASM files found in public"
+      
+      - name: Setup GitHub Pages
+        uses: actions/configure-pages@v5
+      
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './web/main/dist'
+
+  deploy:
+    name: Deploy to GitHub Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      
+      - name: Display deployment URL
+        run: |
+          echo "🚀 Deployment successful!"
+          echo "📱 Live URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "✨ Boid simulation is now available online!"
