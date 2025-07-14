@@ -11,18 +11,24 @@ export default defineConfig({
       name: "copy-wasm",
       buildStart() {
         // WASMファイルをpublicディレクトリにコピー
-        const wasmSrc = join(__dirname, "../../wasm/build/boid.wasm")
-        const wasmDest = join(__dirname, "public/build")
+        const wasmSrc = join(__dirname, "../../wasm/boid.wasm")
+        const wasmExecSrc = join(__dirname, "../../wasm/wasm_exec.js")
+        const publicDir = join(__dirname, "public")
 
-        if (!existsSync(wasmDest)) {
-          mkdirSync(wasmDest, { recursive: true })
-        }
-
+        // WASMファイルをコピー
         if (existsSync(wasmSrc)) {
-          copyFileSync(wasmSrc, join(wasmDest, "boid.wasm"))
-          console.log("✓ Copied WASM file to public/build/")
+          copyFileSync(wasmSrc, join(publicDir, "boid.wasm"))
+          console.log("✓ Copied WASM file to public/")
         } else {
           console.warn("⚠ WASM file not found. Run 'pnpm wasm:build' first.")
+        }
+
+        // wasm_exec.jsをコピー
+        if (existsSync(wasmExecSrc)) {
+          copyFileSync(wasmExecSrc, join(publicDir, "wasm_exec.js"))
+          console.log("✓ Copied wasm_exec.js to public/")
+        } else {
+          console.warn("⚠ wasm_exec.js not found.")
         }
       },
     },
