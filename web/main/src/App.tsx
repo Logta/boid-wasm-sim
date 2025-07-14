@@ -41,6 +41,7 @@ export function App() {
           </div>
           <div className="text-muted-foreground">{error.message}</div>
           <button
+            type="button"
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
           >

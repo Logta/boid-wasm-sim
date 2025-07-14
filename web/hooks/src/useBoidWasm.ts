@@ -1,6 +1,24 @@
 import { useCallback, useEffect, useState } from "react"
 import type { Boid } from "./types"
 
+declare global {
+  interface Window {
+    Go: new () => {
+      run: (instance: WebAssembly.Instance) => void
+      importObject: WebAssembly.Imports
+    }
+    initializeSimulation: (count: number, width: number, height: number) => void
+    updateSimulation: () => void
+    setMousePosition: (x: number, y: number) => void
+    getBoidCount: () => number
+    getAllBoidData: () => Array<{ x: number; y: number; vx: number; vy: number }>
+    updateSeparationParams: (radius: number, strength: number) => void
+    updateAlignmentParams: (radius: number, strength: number) => void
+    updateCohesionParams: (radius: number, strength: number) => void
+    updateMouseAvoidanceDistance: (distance: number) => void
+  }
+}
+
 type WasmExports = {
   initializeSimulation: (count: number, width: number, height: number) => void
   updateSimulation: () => void
@@ -34,7 +52,7 @@ export function useBoidWasm() {
         document.head.appendChild(script)
 
         // GoのWASMインスタンスを作成
-        const go = new (window as any).Go()
+        const go = new window.Go()
         const wasmResponse = await fetch("/boid.wasm")
         const wasmBytes = await wasmResponse.arrayBuffer()
         const wasmModule = await WebAssembly.instantiate(wasmBytes, go.importObject)
@@ -44,15 +62,15 @@ export function useBoidWasm() {
 
         // グローバル関数をラップ
         const wasmExports: WasmExports = {
-          initializeSimulation: (window as any).initializeSimulation,
-          updateSimulation: (window as any).updateSimulation,
-          setMousePosition: (window as any).setMousePosition,
-          getBoidCount: (window as any).getBoidCount,
-          getAllBoidData: (window as any).getAllBoidData,
-          updateSeparationParams: (window as any).updateSeparationParams,
-          updateAlignmentParams: (window as any).updateAlignmentParams,
-          updateCohesionParams: (window as any).updateCohesionParams,
-          updateMouseAvoidanceDistance: (window as any).updateMouseAvoidanceDistance,
+          initializeSimulation: window.initializeSimulation,
+          updateSimulation: window.updateSimulation,
+          setMousePosition: window.setMousePosition,
+          getBoidCount: window.getBoidCount,
+          getAllBoidData: window.getAllBoidData,
+          updateSeparationParams: window.updateSeparationParams,
+          updateAlignmentParams: window.updateAlignmentParams,
+          updateCohesionParams: window.updateCohesionParams,
+          updateMouseAvoidanceDistance: window.updateMouseAvoidanceDistance,
         }
 
         setWasmModule(wasmExports)

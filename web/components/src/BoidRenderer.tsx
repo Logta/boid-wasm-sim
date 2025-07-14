@@ -1,6 +1,6 @@
 import type { Boid } from "@boid-wasm-sim/hooks"
 import { Activity, MousePointer, Users } from "lucide-react"
-import { useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef } from "react"
 import { Badge } from "./ui/badge"
 import { Card } from "./ui/card"
 
@@ -17,7 +17,7 @@ export function BoidRenderer({ width, height, boids, fps, onMouseMove }: BoidRen
   const backgroundCanvasRef = useRef<HTMLCanvasElement>(null)
   const gradientRef = useRef<CanvasGradient | null>(null)
 
-  function drawBoid(ctx: CanvasRenderingContext2D, boid: Boid) {
+  const drawBoid = useCallback((ctx: CanvasRenderingContext2D, boid: Boid) => {
     const size = 6
     const angle = Math.atan2(boid.velocity.y, boid.velocity.x)
 
@@ -47,9 +47,9 @@ export function BoidRenderer({ width, height, boids, fps, onMouseMove }: BoidRen
     ctx.stroke()
 
     ctx.restore()
-  }
+  }, [])
 
-  function renderBackground() {
+  const renderBackground = useCallback(() => {
     const bgCanvas = backgroundCanvasRef.current
     if (!bgCanvas) return
 
@@ -77,9 +77,10 @@ export function BoidRenderer({ width, height, boids, fps, onMouseMove }: BoidRen
       bgCtx.lineTo(width, y)
     }
     bgCtx.stroke()
-  }
+  }, [width, height])
 
-  function render() {
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 依存関係を意図的に除外
+  const render = useCallback(() => {
     const canvas = canvasRef.current
     const bgCanvas = backgroundCanvasRef.current
     if (!canvas || !bgCanvas) return
@@ -93,7 +94,7 @@ export function BoidRenderer({ width, height, boids, fps, onMouseMove }: BoidRen
 
     // 全てのboidを描画
     boids.forEach((boid) => drawBoid(ctx, boid))
-  }
+  }, [boids, width, height])
 
   function handleMouseMove(event: React.MouseEvent<HTMLCanvasElement>) {
     const canvas = canvasRef.current
@@ -108,11 +109,11 @@ export function BoidRenderer({ width, height, boids, fps, onMouseMove }: BoidRen
 
   useEffect(() => {
     renderBackground()
-  }, [width, height])
+  }, [renderBackground])
 
   useEffect(() => {
     render()
-  }, [boids])
+  }, [render])
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center relative bg-muted/20">

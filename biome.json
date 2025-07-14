@@ -18,7 +18,8 @@
       "!build/**",
       "!coverage/**",
       "!**/*.wasm",
-      "!**/*.map"
+      "!**/*.map",
+      "!**/wasm_exec.js"
     ]
   },
   "formatter": {

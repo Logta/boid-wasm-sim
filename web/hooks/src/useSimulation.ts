@@ -81,6 +81,7 @@ export function useSimulation() {
   )
 
   // 再生状態変更時のアニメーション制御
+  // biome-ignore lint/correctness/useExhaustiveDependencies: performanceMonitorの依存関係を意図的に除外
   useEffect(() => {
     if (isPlaying) {
       // アニメーション開始時のみリセット

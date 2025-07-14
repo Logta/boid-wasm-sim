@@ -1,6 +1,6 @@
+import { copyFileSync, existsSync, mkdirSync } from "node:fs"
+import { join } from "node:path"
 import react from "@vitejs/plugin-react"
-import { copyFileSync, existsSync, mkdirSync } from "fs"
-import { join } from "path"
 import { defineConfig } from "vite"
 
 export default defineConfig({
