@@ -1,4 +1,11 @@
 import { ParameterSlider } from "./ParameterSlider"
+import { 
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "./ui/accordion"
+import { ArrowUpDown, Move, Magnet, MousePointer } from "lucide-react"
 
 type SimulationParameters = {
   separationRadius: number
@@ -17,84 +24,112 @@ type ParameterPanelProps = {
 
 export function ParameterPanel({ parameters, onParameterChange }: ParameterPanelProps) {
   return (
-    <div className="space-y-4">
-      <div>
-        <h4 className="text-sm font-semibold mb-2 text-gray-300">Separation</h4>
-        <div className="space-y-3">
-          <ParameterSlider
-            label="Separation Radius"
-            value={parameters.separationRadius}
-            min={10}
-            max={100}
-            step={5}
-            onChange={(value) => onParameterChange("separationRadius", value)}
-          />
-          <ParameterSlider
-            label="Separation Strength"
-            value={parameters.separationStrength}
-            min={0}
-            max={3}
-            step={0.1}
-            onChange={(value) => onParameterChange("separationStrength", value)}
-          />
-        </div>
-      </div>
+    <Accordion type="multiple" defaultValue={["separation", "alignment", "cohesion", "mouse"]} className="w-full">
+      <AccordionItem value="separation">
+        <AccordionTrigger className="text-left">
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="h-4 w-4 text-red-400" />
+            <span className="text-red-400">Separation</span>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent>
+          <div className="space-y-4">
+            <ParameterSlider
+              label="Radius"
+              value={parameters.separationRadius}
+              min={10}
+              max={100}
+              step={5}
+              onChange={(value) => onParameterChange("separationRadius", value)}
+            />
+            <ParameterSlider
+              label="Strength"
+              value={parameters.separationStrength}
+              min={0}
+              max={3}
+              step={0.1}
+              onChange={(value) => onParameterChange("separationStrength", value)}
+            />
+          </div>
+        </AccordionContent>
+      </AccordionItem>
 
-      <div>
-        <h4 className="text-sm font-semibold mb-2 text-gray-300">Alignment</h4>
-        <div className="space-y-3">
+      <AccordionItem value="alignment">
+        <AccordionTrigger className="text-left">
+          <div className="flex items-center gap-2">
+            <Move className="h-4 w-4 text-yellow-400" />
+            <span className="text-yellow-400">Alignment</span>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent>
+          <div className="space-y-4">
+            <ParameterSlider
+              label="Radius"
+              value={parameters.alignmentRadius}
+              min={20}
+              max={150}
+              step={10}
+              onChange={(value) => onParameterChange("alignmentRadius", value)}
+            />
+            <ParameterSlider
+              label="Strength"
+              value={parameters.alignmentStrength}
+              min={0}
+              max={3}
+              step={0.1}
+              onChange={(value) => onParameterChange("alignmentStrength", value)}
+            />
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="cohesion">
+        <AccordionTrigger className="text-left">
+          <div className="flex items-center gap-2">
+            <Magnet className="h-4 w-4 text-green-400" />
+            <span className="text-green-400">Cohesion</span>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent>
+          <div className="space-y-4">
+            <ParameterSlider
+              label="Radius"
+              value={parameters.cohesionRadius}
+              min={20}
+              max={150}
+              step={10}
+              onChange={(value) => onParameterChange("cohesionRadius", value)}
+            />
+            <ParameterSlider
+              label="Strength"
+              value={parameters.cohesionStrength}
+              min={0}
+              max={3}
+              step={0.1}
+              onChange={(value) => onParameterChange("cohesionStrength", value)}
+            />
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="mouse">
+        <AccordionTrigger className="text-left">
+          <div className="flex items-center gap-2">
+            <MousePointer className="h-4 w-4 text-blue-400" />
+            <span className="text-blue-400">Mouse Interaction</span>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent>
           <ParameterSlider
-            label="Alignment Radius"
-            value={parameters.alignmentRadius}
-            min={20}
-            max={150}
+            label="Avoidance Distance"
+            value={parameters.mouseAvoidanceDistance}
+            min={50}
+            max={200}
             step={10}
-            onChange={(value) => onParameterChange("alignmentRadius", value)}
+            onChange={(value) => onParameterChange("mouseAvoidanceDistance", value)}
           />
-          <ParameterSlider
-            label="Alignment Strength"
-            value={parameters.alignmentStrength}
-            min={0}
-            max={3}
-            step={0.1}
-            onChange={(value) => onParameterChange("alignmentStrength", value)}
-          />
-        </div>
-      </div>
-
-      <div>
-        <h4 className="text-sm font-semibold mb-2 text-gray-300">Cohesion</h4>
-        <div className="space-y-3">
-          <ParameterSlider
-            label="Cohesion Radius"
-            value={parameters.cohesionRadius}
-            min={20}
-            max={150}
-            step={10}
-            onChange={(value) => onParameterChange("cohesionRadius", value)}
-          />
-          <ParameterSlider
-            label="Cohesion Strength"
-            value={parameters.cohesionStrength}
-            min={0}
-            max={3}
-            step={0.1}
-            onChange={(value) => onParameterChange("cohesionStrength", value)}
-          />
-        </div>
-      </div>
-
-      <div>
-        <h4 className="text-sm font-semibold mb-2 text-gray-300">Mouse Interaction</h4>
-        <ParameterSlider
-          label="Mouse Avoidance Distance"
-          value={parameters.mouseAvoidanceDistance}
-          min={50}
-          max={200}
-          step={10}
-          onChange={(value) => onParameterChange("mouseAvoidanceDistance", value)}
-        />
-      </div>
-    </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   )
 }

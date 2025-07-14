@@ -1,4 +1,3 @@
-import "./index.css"
 import { 
   Header, 
   Sidebar, 
@@ -25,25 +24,38 @@ export function App() {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen bg-gray-900 text-white items-center justify-center">
-        <div className="text-xl">Loading WASM module...</div>
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="text-xl font-medium">Loading WASM module...</div>
+          <div className="text-sm text-muted-foreground">Initializing boid simulation</div>
+        </div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex h-screen bg-gray-900 text-white items-center justify-center">
-        <div className="text-center">
-          <div className="text-xl text-red-400 mb-2">Error loading simulation</div>
-          <div className="text-gray-400">{error.message}</div>
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center space-y-4 max-w-md">
+          <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
+            <span className="text-2xl">⚠️</span>
+          </div>
+          <div className="text-xl font-semibold text-destructive">Error loading simulation</div>
+          <div className="text-muted-foreground">{error.message}</div>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+          >
+            Retry
+          </button>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex h-screen bg-gray-900 text-white">
+    <div className="flex h-screen">
       <Sidebar
         boidCount={boidCount}
         isPlaying={isPlaying}

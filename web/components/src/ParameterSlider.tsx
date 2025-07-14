@@ -1,3 +1,5 @@
+import { Slider } from "./ui/slider"
+
 type ParameterSliderProps = {
   label: string
   value: number
@@ -15,24 +17,19 @@ export function ParameterSlider({
   step, 
   onChange 
 }: ParameterSliderProps) {
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    onChange(Number(event.target.value))
-  }
-
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <div className="flex justify-between items-center">
-        <label className="text-sm font-medium">{label}</label>
-        <span className="text-sm text-gray-300">{value}</span>
+        <label className="text-sm font-medium text-muted-foreground">{label}</label>
+        <span className="text-sm font-mono text-foreground bg-muted px-2 py-1 rounded">{value}</span>
       </div>
-      <input
-        type="range"
+      <Slider
+        value={[value]}
+        onValueChange={(values) => onChange(values[0])}
         min={min}
         max={max}
         step={step}
-        value={value}
-        onChange={handleChange}
-        className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+        className="w-full"
       />
     </div>
   )

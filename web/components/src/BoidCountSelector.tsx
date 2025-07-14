@@ -1,28 +1,35 @@
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select"
+
 type BoidCountSelectorProps = {
   value: number
   onChange: (value: number) => void
 }
 
 export function BoidCountSelector({ value, onChange }: BoidCountSelectorProps) {
-  function handleChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    onChange(Number(event.target.value))
-  }
-
   return (
-    <div className="space-y-2">
-      <label htmlFor="boid-count" className="block text-sm font-medium">
-        Boid Count
+    <div className="space-y-3">
+      <label className="block text-sm font-medium text-muted-foreground">
+        Number of Boids
       </label>
-      <select
-        id="boid-count"
-        value={value}
-        onChange={handleChange}
-        className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+      <Select 
+        value={value.toString()} 
+        onValueChange={(val) => onChange(Number(val))}
       >
-        <option value={100}>100 boids</option>
-        <option value={500}>500 boids</option>
-        <option value={1000}>1000 boids</option>
-      </select>
+        <SelectTrigger className="w-full">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="100">🐦 100 boids</SelectItem>
+          <SelectItem value="500">🐦 500 boids</SelectItem>
+          <SelectItem value="1000">🐦 1000 boids</SelectItem>
+        </SelectContent>
+      </Select>
     </div>
   )
 }

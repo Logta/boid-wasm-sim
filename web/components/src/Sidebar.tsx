@@ -1,6 +1,7 @@
 import { BoidCountSelector } from "./BoidCountSelector"
 import { ParameterPanel } from "./ParameterPanel"
 import { SimulationControls } from "./SimulationControls"
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 
 type SimulationParameters = {
   separationRadius: number
@@ -32,34 +33,51 @@ export function Sidebar({
   onParameterChange
 }: SidebarProps) {
   return (
-    <aside role="complementary" className="w-80 bg-gray-800 p-6">
-      <h2 className="text-xl font-bold mb-6">Controls</h2>
+    <aside role="complementary" className="w-80 border-r p-6 overflow-y-auto">
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+          Controls
+        </h2>
+        <div className="h-px bg-gradient-to-r from-blue-500 to-purple-500"></div>
+      </div>
       
       <div className="space-y-6">
-        <div>
-          <h3 className="text-lg font-semibold mb-3">Boid Count</h3>
-          <BoidCountSelector 
-            value={boidCount}
-            onChange={onBoidCountChange}
-          />
-        </div>
+        <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg text-blue-400">Boid Count</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <BoidCountSelector 
+              value={boidCount}
+              onChange={onBoidCountChange}
+            />
+          </CardContent>
+        </Card>
         
-        <div>
-          <h3 className="text-lg font-semibold mb-3">Parameters</h3>
-          <ParameterPanel
-            parameters={parameters}
-            onParameterChange={onParameterChange}
-          />
-        </div>
+        <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg text-green-400">Parameters</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ParameterPanel
+              parameters={parameters}
+              onParameterChange={onParameterChange}
+            />
+          </CardContent>
+        </Card>
         
-        <div>
-          <h3 className="text-lg font-semibold mb-3">Simulation Control</h3>
-          <SimulationControls
-            isPlaying={isPlaying}
-            onPlayPause={onPlayPause}
-            onReset={onReset}
-          />
-        </div>
+        <Card>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg text-purple-400">Simulation Control</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SimulationControls
+              isPlaying={isPlaying}
+              onPlayPause={onPlayPause}
+              onReset={onReset}
+            />
+          </CardContent>
+        </Card>
       </div>
     </aside>
   )
