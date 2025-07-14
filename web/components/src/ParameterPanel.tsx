@@ -29,13 +29,13 @@ export function ParameterPanel({ parameters, onParameterChange }: ParameterPanel
         <AccordionTrigger className="text-left">
           <div className="flex items-center gap-2">
             <ArrowUpDown className="h-4 w-4 text-red-400" />
-            <span className="text-red-400">Separation</span>
+            <span className="text-red-400">分離行動</span>
           </div>
         </AccordionTrigger>
         <AccordionContent>
           <div className="space-y-4">
             <ParameterSlider
-              label="Radius"
+              label="半径"
               value={parameters.separationRadius}
               min={10}
               max={100}
@@ -43,7 +43,7 @@ export function ParameterPanel({ parameters, onParameterChange }: ParameterPanel
               onChange={(value) => onParameterChange("separationRadius", value)}
             />
             <ParameterSlider
-              label="Strength"
+              label="強度"
               value={parameters.separationStrength}
               min={0}
               max={3}
@@ -58,13 +58,13 @@ export function ParameterPanel({ parameters, onParameterChange }: ParameterPanel
         <AccordionTrigger className="text-left">
           <div className="flex items-center gap-2">
             <Move className="h-4 w-4 text-yellow-400" />
-            <span className="text-yellow-400">Alignment</span>
+            <span className="text-yellow-400">整列行動</span>
           </div>
         </AccordionTrigger>
         <AccordionContent>
           <div className="space-y-4">
             <ParameterSlider
-              label="Radius"
+              label="半径"
               value={parameters.alignmentRadius}
               min={20}
               max={150}
@@ -72,7 +72,7 @@ export function ParameterPanel({ parameters, onParameterChange }: ParameterPanel
               onChange={(value) => onParameterChange("alignmentRadius", value)}
             />
             <ParameterSlider
-              label="Strength"
+              label="強度"
               value={parameters.alignmentStrength}
               min={0}
               max={3}
@@ -87,13 +87,13 @@ export function ParameterPanel({ parameters, onParameterChange }: ParameterPanel
         <AccordionTrigger className="text-left">
           <div className="flex items-center gap-2">
             <Magnet className="h-4 w-4 text-green-400" />
-            <span className="text-green-400">Cohesion</span>
+            <span className="text-green-400">結合行動</span>
           </div>
         </AccordionTrigger>
         <AccordionContent>
           <div className="space-y-4">
             <ParameterSlider
-              label="Radius"
+              label="半径"
               value={parameters.cohesionRadius}
               min={20}
               max={150}
@@ -101,7 +101,7 @@ export function ParameterPanel({ parameters, onParameterChange }: ParameterPanel
               onChange={(value) => onParameterChange("cohesionRadius", value)}
             />
             <ParameterSlider
-              label="Strength"
+              label="強度"
               value={parameters.cohesionStrength}
               min={0}
               max={3}
@@ -116,12 +116,12 @@ export function ParameterPanel({ parameters, onParameterChange }: ParameterPanel
         <AccordionTrigger className="text-left">
           <div className="flex items-center gap-2">
             <MousePointer className="h-4 w-4 text-blue-400" />
-            <span className="text-blue-400">Mouse Interaction</span>
+            <span className="text-blue-400">マウス回避</span>
           </div>
         </AccordionTrigger>
         <AccordionContent>
           <ParameterSlider
-            label="Avoidance Distance"
+            label="回避距離"
             value={parameters.mouseAvoidanceDistance}
             min={50}
             max={200}

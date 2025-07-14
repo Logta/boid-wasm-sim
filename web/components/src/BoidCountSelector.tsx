@@ -15,7 +15,7 @@ export function BoidCountSelector({ value, onChange }: BoidCountSelectorProps) {
   return (
     <div className="space-y-3">
       <label className="block text-sm font-medium text-muted-foreground">
-        Number of Boids
+        ボイド数
       </label>
       <Select 
         value={value.toString()} 
@@ -25,9 +25,9 @@ export function BoidCountSelector({ value, onChange }: BoidCountSelectorProps) {
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="100">🐦 100 boids</SelectItem>
-          <SelectItem value="500">🐦 500 boids</SelectItem>
-          <SelectItem value="1000">🐦 1000 boids</SelectItem>
+          <SelectItem value="100">🐦 100匹</SelectItem>
+          <SelectItem value="500">🐦 500匹</SelectItem>
+          <SelectItem value="1000">🐦 1000匹</SelectItem>
         </SelectContent>
       </Select>
     </div>

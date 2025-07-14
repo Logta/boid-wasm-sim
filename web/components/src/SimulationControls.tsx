@@ -20,7 +20,7 @@ export function SimulationControls({
         size="lg"
       >
         {isPlaying ? <Pause className="mr-2 h-4 w-4" /> : <Play className="mr-2 h-4 w-4" />}
-        {isPlaying ? "Pause" : "Play"}
+        {isPlaying ? "一時停止" : "再生"}
       </Button>
       
       <Button
@@ -30,7 +30,7 @@ export function SimulationControls({
         size="lg"
       >
         <RotateCcw className="mr-2 h-4 w-4" />
-        Reset
+        リセット
       </Button>
     </div>
   )
