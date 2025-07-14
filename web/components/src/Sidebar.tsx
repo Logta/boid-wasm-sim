@@ -123,20 +123,20 @@ export function Sidebar({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <Button
                 onClick={onPlayPause}
-                className="flex-1"
                 variant={isPlaying ? "secondary" : "default"}
+                className="flex items-center justify-center whitespace-nowrap"
               >
                 {isPlaying ? (
                   <>
-                    <Pause className="h-4 w-4 mr-2" />
-                    一時停止
+                    <Pause className="h-4 w-4 mr-1" />
+                    停止
                   </>
                 ) : (
                   <>
-                    <Play className="h-4 w-4 mr-2" />
+                    <Play className="h-4 w-4 mr-1" />
                     再生
                   </>
                 )}
@@ -144,9 +144,9 @@ export function Sidebar({
               <Button
                 onClick={onReset}
                 variant="outline"
-                className="flex-1"
+                className="flex items-center justify-center whitespace-nowrap"
               >
-                <RotateCcw className="h-4 w-4 mr-2" />
+                <RotateCcw className="h-4 w-4 mr-1" />
                 リセット
               </Button>
             </div>
