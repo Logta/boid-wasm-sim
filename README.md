@@ -122,6 +122,24 @@ boid-wasm-sim/
 - グラデーションの再利用
 - デバッグログの削除
 
+## GitHub Actions
+
+### CI/CD
+- **CI**: プッシュ・プルリクエスト時にテスト・リント・ビルドを自動実行
+- **Deploy**: mainブランチへのプッシュ時にGitHub Pagesに自動デプロイ
+
+### 手動実行
+```bash
+# GitHub Actions相当のローカルテスト
+mise gh-test
+
+# GitHub Actions相当のローカルビルド
+mise gh-build
+
+# GitHub Pages用ビルド
+mise gh-deploy
+```
+
 ## ライセンス
 
 MIT

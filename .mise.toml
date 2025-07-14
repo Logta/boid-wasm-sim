@@ -51,3 +51,13 @@ ci-install = "pnpm install --frozen-lockfile"
 ci-build = "pnpm build:all"
 ci-test = "pnpm test:all"
 ci-check = "pnpm typecheck && pnpm lint"
+
+# GitHub Actions用
+gh-setup = "mise install && pnpm install"
+gh-test = "pnpm --filter @boid-wasm-sim/wasm test && pnpm --filter @boid-wasm-sim/hooks test && pnpm --filter @boid-wasm-sim/web test"
+gh-build = "pnpm --filter @boid-wasm-sim/wasm build && pnpm --filter @boid-wasm-sim/hooks build && pnpm --filter @boid-wasm-sim/components build && pnpm --filter @boid-wasm-sim/web build"
+gh-deploy = "cd web/main && VITE_BASE_PATH=/boid-wasm-sim/ pnpm build"
+
+# セキュリティチェック
+security-audit = "pnpm audit --audit-level moderate"
+security-check = "pnpm audit"
