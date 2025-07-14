@@ -12,7 +12,11 @@
     "test:all": "pnpm test && pnpm --filter @boid-wasm-sim/wasm test",
     "typecheck": "pnpm --recursive typecheck",
     "lint": "biome check .",
-    "lint:fix": "biome check --write ."
+    "lint:fix": "biome check --write .",
+    "format:check": "biome format .",
+    "format:fix": "biome format --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write ."
   },
   "devDependencies": {
     "@types/node": "^24.0.13",
