@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react"
 import { Badge } from "./ui/badge"
 import { Card } from "./ui/card"
+import { Activity, Users, MousePointer } from "lucide-react"
 import type { Boid } from "@boid-wasm-sim/hooks"
 
 type BoidRendererProps = {
@@ -116,17 +117,20 @@ export function BoidRenderer({
         {/* 情報表示オーバーレイ */}
         <div className="absolute top-4 left-4 flex flex-col gap-2">
           <Badge variant="secondary" className="shadow-lg">
-            📊 FPS: {fps}
+            <Activity className="h-3 w-3 mr-1" />
+            FPS: {fps}
           </Badge>
           <Badge variant="outline" className="shadow-lg bg-background/80 backdrop-blur-sm">
-            🐦 ボイド: {boids.length}匹
+            <Users className="h-3 w-3 mr-1" />
+            ボイド: {boids.length}匹
           </Badge>
         </div>
         
         {/* マウス操作のヒント */}
         <div className="absolute bottom-4 right-4">
           <Badge variant="outline" className="shadow-lg bg-background/80 backdrop-blur-sm text-xs">
-            🔍 マウスでボイドを誘導
+            <MousePointer className="h-3 w-3 mr-1" />
+            マウスでボイドを誘導
           </Badge>
         </div>
       </Card>

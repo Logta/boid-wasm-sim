@@ -4,6 +4,18 @@ import { Label } from "./ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Separator } from "./ui/separator"
 import { Slider } from "./ui/slider"
+import { 
+  Play, 
+  Pause, 
+  RotateCcw, 
+  Settings, 
+  Zap, 
+  Users,
+  Divide,
+  ArrowUpDown,
+  Magnet,
+  MousePointer
+} from "lucide-react"
 import type { SimulationParameters } from "@boid-wasm-sim/hooks"
 
 type SidebarProps = {
@@ -78,7 +90,8 @@ export function Sidebar({
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              🐦 ボイド数
+              <Users className="h-5 w-5 text-blue-500" />
+              ボイド数
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -105,7 +118,8 @@ export function Sidebar({
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              ⚡ シミュレーション制御
+              <Zap className="h-5 w-5 text-yellow-500" />
+              シミュレーション制御
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -115,14 +129,25 @@ export function Sidebar({
                 className="flex-1"
                 variant={isPlaying ? "secondary" : "default"}
               >
-                {isPlaying ? "⏸️ 一時停止" : "▶️ 再生"}
+                {isPlaying ? (
+                  <>
+                    <Pause className="h-4 w-4 mr-2" />
+                    一時停止
+                  </>
+                ) : (
+                  <>
+                    <Play className="h-4 w-4 mr-2" />
+                    再生
+                  </>
+                )}
               </Button>
               <Button
                 onClick={onReset}
                 variant="outline"
                 className="flex-1"
               >
-                🔄 リセット
+                <RotateCcw className="h-4 w-4 mr-2" />
+                リセット
               </Button>
             </div>
           </CardContent>
@@ -132,14 +157,16 @@ export function Sidebar({
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              ⚙️ パラメータ
+              <Settings className="h-5 w-5 text-gray-500" />
+              パラメータ
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 分離行動 */}
             <div className="space-y-4">
               <h4 className="text-sm font-semibold flex items-center gap-2 text-red-500">
-                🔴 分離行動
+                <Divide className="h-4 w-4" />
+                分離行動
               </h4>
               <ParameterSlider
                 label="半径"
@@ -166,7 +193,8 @@ export function Sidebar({
             {/* 整列行動 */}
             <div className="space-y-4">
               <h4 className="text-sm font-semibold flex items-center gap-2 text-yellow-500">
-                🟡 整列行動
+                <ArrowUpDown className="h-4 w-4" />
+                整列行動
               </h4>
               <ParameterSlider
                 label="半径"
@@ -193,7 +221,8 @@ export function Sidebar({
             {/* 結合行動 */}
             <div className="space-y-4">
               <h4 className="text-sm font-semibold flex items-center gap-2 text-green-500">
-                🟢 結合行動
+                <Magnet className="h-4 w-4" />
+                結合行動
               </h4>
               <ParameterSlider
                 label="半径"
@@ -220,7 +249,8 @@ export function Sidebar({
             {/* マウス回避 */}
             <div className="space-y-4">
               <h4 className="text-sm font-semibold flex items-center gap-2 text-blue-500">
-                🔵 マウス回避
+                <MousePointer className="h-4 w-4" />
+                マウス回避
               </h4>
               <ParameterSlider
                 label="回避距離"
