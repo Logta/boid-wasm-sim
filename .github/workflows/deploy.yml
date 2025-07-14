@@ -42,7 +42,10 @@ jobs:
         run: pnpm install
       
       - name: Build WASM module
-        run: pnpm --filter @boid-wasm-sim/wasm build
+        run: |
+          pnpm --filter @boid-wasm-sim/wasm build
+          # wasm_exec.jsをwasmディレクトリにコピー（Goのランタイムから）
+          cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" wasm/
       
       - name: Build web packages
         run: |
@@ -52,7 +55,7 @@ jobs:
       - name: Build web application for GitHub Pages
         run: |
           cd web/main
-          pnpm build
+          VITE_BASE_PATH=/boid-wasm-sim/ pnpm build
         env:
           # GitHub Pagesのベースパスを設定（リポジトリ名に応じて調整）
           VITE_BASE_PATH: /boid-wasm-sim/
@@ -61,9 +64,12 @@ jobs:
         run: |
           echo "Build output contents:"
           ls -la web/main/dist/
-          echo "WASM files:"
+          echo "WASM files in dist:"
           ls -la web/main/dist/*.wasm || echo "No WASM files found in dist"
+          echo "WASM files in public:"
           ls -la web/main/public/*.wasm || echo "No WASM files found in public"
+          echo "wasm_exec.js:"
+          ls -la web/main/dist/wasm_exec.js || echo "No wasm_exec.js found in dist"
       
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
