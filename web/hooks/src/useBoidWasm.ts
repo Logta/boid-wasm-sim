@@ -6,10 +6,6 @@ type WasmExports = {
   updateSimulation: () => void
   setMousePosition: (x: number, y: number) => void
   getBoidCount: () => number
-  getBoidPositionX: (index: number) => number
-  getBoidPositionY: (index: number) => number
-  getBoidVelocityX: (index: number) => number
-  getBoidVelocityY: (index: number) => number
   getAllBoidData: () => Array<{x: number, y: number, vx: number, vy: number}>
   updateSeparationParams: (radius: number, strength: number) => void
   updateAlignmentParams: (radius: number, strength: number) => void
@@ -52,10 +48,6 @@ export function useBoidWasm() {
           updateSimulation: (window as any).updateSimulation,
           setMousePosition: (window as any).setMousePosition,
           getBoidCount: (window as any).getBoidCount,
-          getBoidPositionX: (window as any).getBoidPositionX,
-          getBoidPositionY: (window as any).getBoidPositionY,
-          getBoidVelocityX: (window as any).getBoidVelocityX,
-          getBoidVelocityY: (window as any).getBoidVelocityY,
           getAllBoidData: (window as any).getAllBoidData,
           updateSeparationParams: (window as any).updateSeparationParams,
           updateAlignmentParams: (window as any).updateAlignmentParams,

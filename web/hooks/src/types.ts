@@ -1,12 +1,7 @@
-export type Vector2 = {
-  x: number
-  y: number
-}
-
 export type Boid = {
   id: number
-  position: Vector2
-  velocity: Vector2
+  position: { x: number; y: number }
+  velocity: { x: number; y: number }
 }
 
 export type SimulationParameters = {
@@ -19,18 +14,3 @@ export type SimulationParameters = {
   mouseAvoidanceDistance: number
 }
 
-export type SimulationState = {
-  isLoading: boolean
-  error: Error | null
-  isPlaying: boolean
-  boidCount: number
-  parameters: SimulationParameters
-  boids: Boid[]
-  fps: number
-}
-
-export type PerformanceMetrics = {
-  fps: number
-  frameTime: number
-  updateTime: number
-}

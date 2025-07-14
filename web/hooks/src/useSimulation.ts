@@ -159,9 +159,6 @@ export function useSimulation() {
     parameters,
     boids,
     fps: performanceMonitor.fps,
-    frameTime: performanceMonitor.frameTime,
-    updateTime: performanceMonitor.updateTime,
-    renderTime: performanceMonitor.renderTime,
     
     // アクション
     togglePlayPause,
