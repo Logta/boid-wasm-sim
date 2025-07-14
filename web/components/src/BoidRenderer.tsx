@@ -1,8 +1,8 @@
-import { useRef, useEffect } from "react"
+import type { Boid } from "@boid-wasm-sim/hooks"
+import { Activity, MousePointer, Users } from "lucide-react"
+import { useEffect, useRef } from "react"
 import { Badge } from "./ui/badge"
 import { Card } from "./ui/card"
-import { Activity, Users, MousePointer } from "lucide-react"
-import type { Boid } from "@boid-wasm-sim/hooks"
 
 type BoidRendererProps = {
   width: number
@@ -12,13 +12,7 @@ type BoidRendererProps = {
   onMouseMove: (x: number, y: number) => void
 }
 
-export function BoidRenderer({ 
-  width, 
-  height, 
-  boids, 
-  fps, 
-  onMouseMove 
-}: BoidRendererProps) {
+export function BoidRenderer({ width, height, boids, fps, onMouseMove }: BoidRendererProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const backgroundCanvasRef = useRef<HTMLCanvasElement>(null)
   const gradientRef = useRef<CanvasGradient | null>(null)
@@ -26,18 +20,18 @@ export function BoidRenderer({
   function drawBoid(ctx: CanvasRenderingContext2D, boid: Boid) {
     const size = 6
     const angle = Math.atan2(boid.velocity.y, boid.velocity.x)
-    
+
     ctx.save()
     ctx.translate(boid.position.x, boid.position.y)
     ctx.rotate(angle)
-    
+
     // より目立つボイドの描画
     ctx.beginPath()
     ctx.moveTo(size, 0)
     ctx.lineTo(-size / 2, -size / 2)
     ctx.lineTo(-size / 2, size / 2)
     ctx.closePath()
-    
+
     // 再利用可能なグラデーション
     if (!gradientRef.current) {
       gradientRef.current = ctx.createLinearGradient(-size, -size, size, size)
@@ -46,12 +40,12 @@ export function BoidRenderer({
     }
     ctx.fillStyle = gradientRef.current
     ctx.fill()
-    
+
     // 境界線
     ctx.strokeStyle = "#1e40af"
     ctx.lineWidth = 0.5
     ctx.stroke()
-    
+
     ctx.restore()
   }
 
@@ -98,7 +92,7 @@ export function BoidRenderer({
     ctx.drawImage(bgCanvas, 0, 0)
 
     // 全てのboidを描画
-    boids.forEach(boid => drawBoid(ctx, boid))
+    boids.forEach((boid) => drawBoid(ctx, boid))
   }
 
   function handleMouseMove(event: React.MouseEvent<HTMLCanvasElement>) {
@@ -108,7 +102,7 @@ export function BoidRenderer({
     const rect = canvas.getBoundingClientRect()
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
-    
+
     onMouseMove(x, y)
   }
 
@@ -139,7 +133,7 @@ export function BoidRenderer({
           onMouseMove={handleMouseMove}
           className="cursor-crosshair"
         />
-        
+
         {/* 情報表示オーバーレイ */}
         <div className="absolute top-4 left-4 flex flex-col gap-2">
           <Badge variant="secondary" className="shadow-lg">
@@ -151,7 +145,7 @@ export function BoidRenderer({
             ボイド: {boids.length}匹
           </Badge>
         </div>
-        
+
         {/* マウス操作のヒント */}
         <div className="absolute bottom-4 right-4">
           <Badge variant="outline" className="shadow-lg bg-background/80 backdrop-blur-sm text-xs">

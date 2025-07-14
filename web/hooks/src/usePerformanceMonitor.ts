@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react"
+import { useCallback, useRef, useState } from "react"
 
 type PerformanceWarning = {
   fps: number
@@ -11,10 +11,7 @@ type PerformanceOptions = {
   warningThreshold?: number // FPSがこの値を下回ると警告
 }
 
-export function usePerformanceMonitor(
-  targetFps = 60,
-  options: PerformanceOptions = {}
-) {
+export function usePerformanceMonitor(targetFps = 60, options: PerformanceOptions = {}) {
   const { onPerformanceWarning, warningThreshold = targetFps * 0.8 } = options
 
   const [fps, setFps] = useState(0)
@@ -25,7 +22,7 @@ export function usePerformanceMonitor(
   const frameStartRef = useRef<number>(0)
   const updateStartRef = useRef<number>(0)
   const renderStartRef = useRef<number>(0)
-  
+
   const frameCountRef = useRef<number>(0)
   const lastTimeRef = useRef<number>(performance.now())
 
@@ -36,7 +33,7 @@ export function usePerformanceMonitor(
   const endFrame = useCallback(() => {
     const now = performance.now()
     const frameTime = now - frameStartRef.current
-    
+
     setFrameTime(frameTime)
     frameCountRef.current++
 
@@ -44,18 +41,18 @@ export function usePerformanceMonitor(
     if (now - lastTimeRef.current >= 1000) {
       const seconds = (now - lastTimeRef.current) / 1000
       const currentFps = Math.round(frameCountRef.current / seconds)
-      
+
       setFps(currentFps)
-      
+
       // パフォーマンス警告
       if (currentFps > 0 && currentFps < warningThreshold && onPerformanceWarning) {
         onPerformanceWarning({
           fps: currentFps,
           target: targetFps,
-          frameTime: frameTime
+          frameTime: frameTime,
         })
       }
-      
+
       frameCountRef.current = 0
       lastTimeRef.current = now
     }
@@ -105,6 +102,6 @@ export function usePerformanceMonitor(
     startRender,
     endRender,
     reset,
-    stop
+    stop,
   }
 }

@@ -1,4 +1,4 @@
-import { test, expect } from "vitest"
+import { expect, test } from "vitest"
 import type { Boid, SimulationParameters } from "./types"
 
 // シンプルで価値のある型テスト
@@ -6,9 +6,9 @@ test("Boid型が正しく定義されている", () => {
   const boid: Boid = {
     id: 1,
     position: { x: 100, y: 200 },
-    velocity: { x: 1.5, y: -0.5 }
+    velocity: { x: 1.5, y: -0.5 },
   }
-  
+
   expect(boid.id).toBe(1)
   expect(boid.position.x).toBe(100)
   expect(boid.position.y).toBe(200)
@@ -24,9 +24,9 @@ test("SimulationParameters型が正しく定義されている", () => {
     alignmentStrength: 1.0,
     cohesionRadius: 50,
     cohesionStrength: 1.0,
-    mouseAvoidanceDistance: 100
+    mouseAvoidanceDistance: 100,
   }
-  
+
   // 全ての必要なプロパティが存在することを確認
   expect(typeof params.separationRadius).toBe("number")
   expect(typeof params.separationStrength).toBe("number")

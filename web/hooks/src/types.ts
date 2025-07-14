@@ -13,4 +13,3 @@ export type SimulationParameters = {
   cohesionStrength: number
   mouseAvoidanceDistance: number
 }
-

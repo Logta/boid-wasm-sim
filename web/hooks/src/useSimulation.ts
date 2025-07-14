@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import type { Boid, SimulationParameters } from "./types"
 import { useBoidWasm } from "./useBoidWasm"
 import { usePerformanceMonitor } from "./usePerformanceMonitor"
-import type { SimulationParameters, Boid } from "./types"
 
 const DEFAULT_PARAMETERS: SimulationParameters = {
   separationRadius: 25,
@@ -10,7 +10,7 @@ const DEFAULT_PARAMETERS: SimulationParameters = {
   alignmentStrength: 1.0,
   cohesionRadius: 50,
   cohesionStrength: 1.0,
-  mouseAvoidanceDistance: 100
+  mouseAvoidanceDistance: 100,
 }
 
 export function useSimulation() {
@@ -25,7 +25,7 @@ export function useSimulation() {
     updateSeparationParams,
     updateAlignmentParams,
     updateCohesionParams,
-    updateMouseAvoidanceDistance
+    updateMouseAvoidanceDistance,
   } = useBoidWasm()
 
   const [isPlaying, setIsPlaying] = useState(false)
@@ -35,11 +35,11 @@ export function useSimulation() {
 
   const animationFrameRef = useRef<number>(0)
   const isPlayingRef = useRef(isPlaying)
-  
+
   const performanceMonitor = usePerformanceMonitor(60, {
     onPerformanceWarning: (warning) => {
       console.warn(`Performance warning: FPS dropped to ${warning.fps} (target: ${warning.target})`)
-    }
+    },
   })
 
   // isPlayingRefを常に最新に保つ
@@ -56,26 +56,29 @@ export function useSimulation() {
   }, [wasmModule, isLoading, boidCount, initializeSimulation, getBoids])
 
   // アニメーションループ
-  const animate = useCallback(function animateLoop() {
-    if (!isPlayingRef.current) {
-      return
-    }
+  const animate = useCallback(
+    function animateLoop() {
+      if (!isPlayingRef.current) {
+        return
+      }
 
-    performanceMonitor.startFrame()
-    
-    // シミュレーション更新
-    performanceMonitor.startUpdate()
-    updateSimulation()
-    performanceMonitor.endUpdate()
-    
-    // レンダリング準備
-    performanceMonitor.startRender()
-    setBoids(getBoids())
-    performanceMonitor.endRender()
-    
-    performanceMonitor.endFrame()
-    animationFrameRef.current = requestAnimationFrame(animateLoop)
-  }, [updateSimulation, getBoids, performanceMonitor])
+      performanceMonitor.startFrame()
+
+      // シミュレーション更新
+      performanceMonitor.startUpdate()
+      updateSimulation()
+      performanceMonitor.endUpdate()
+
+      // レンダリング準備
+      performanceMonitor.startRender()
+      setBoids(getBoids())
+      performanceMonitor.endRender()
+
+      performanceMonitor.endFrame()
+      animationFrameRef.current = requestAnimationFrame(animateLoop)
+    },
+    [updateSimulation, getBoids, performanceMonitor]
+  )
 
   // 再生状態変更時のアニメーション制御
   useEffect(() => {
@@ -99,7 +102,7 @@ export function useSimulation() {
   }, [isPlaying])
 
   const togglePlayPause = useCallback(() => {
-    setIsPlaying(prev => !prev)
+    setIsPlaying((prev) => !prev)
   }, [])
 
   const reset = useCallback(() => {
@@ -111,44 +114,58 @@ export function useSimulation() {
     performanceMonitor.reset()
   }, [wasmModule, boidCount, initializeSimulation, getBoids, performanceMonitor])
 
-  const changeBoidCount = useCallback((count: number) => {
-    setBoidCount(count)
-    if (wasmModule) {
-      initializeSimulation(count, 800, 600)
-      setBoids(getBoids())
-    }
-  }, [wasmModule, initializeSimulation, getBoids])
-
-  const setMousePosition = useCallback((x: number, y: number) => {
-    setWasmMousePosition(x, y)
-  }, [setWasmMousePosition])
-
-  const updateParameter = useCallback((key: keyof SimulationParameters, value: number) => {
-    setParameters(prev => {
-      const newParams = { ...prev, [key]: value }
-      
-      // WASMパラメータ更新
-      switch (key) {
-        case "separationRadius":
-        case "separationStrength":
-          updateSeparationParams(newParams.separationRadius, newParams.separationStrength)
-          break
-        case "alignmentRadius":
-        case "alignmentStrength":
-          updateAlignmentParams(newParams.alignmentRadius, newParams.alignmentStrength)
-          break
-        case "cohesionRadius":
-        case "cohesionStrength":
-          updateCohesionParams(newParams.cohesionRadius, newParams.cohesionStrength)
-          break
-        case "mouseAvoidanceDistance":
-          updateMouseAvoidanceDistance(newParams.mouseAvoidanceDistance)
-          break
+  const changeBoidCount = useCallback(
+    (count: number) => {
+      setBoidCount(count)
+      if (wasmModule) {
+        initializeSimulation(count, 800, 600)
+        setBoids(getBoids())
       }
-      
-      return newParams
-    })
-  }, [updateSeparationParams, updateAlignmentParams, updateCohesionParams, updateMouseAvoidanceDistance])
+    },
+    [wasmModule, initializeSimulation, getBoids]
+  )
+
+  const setMousePosition = useCallback(
+    (x: number, y: number) => {
+      setWasmMousePosition(x, y)
+    },
+    [setWasmMousePosition]
+  )
+
+  const updateParameter = useCallback(
+    (key: keyof SimulationParameters, value: number) => {
+      setParameters((prev) => {
+        const newParams = { ...prev, [key]: value }
+
+        // WASMパラメータ更新
+        switch (key) {
+          case "separationRadius":
+          case "separationStrength":
+            updateSeparationParams(newParams.separationRadius, newParams.separationStrength)
+            break
+          case "alignmentRadius":
+          case "alignmentStrength":
+            updateAlignmentParams(newParams.alignmentRadius, newParams.alignmentStrength)
+            break
+          case "cohesionRadius":
+          case "cohesionStrength":
+            updateCohesionParams(newParams.cohesionRadius, newParams.cohesionStrength)
+            break
+          case "mouseAvoidanceDistance":
+            updateMouseAvoidanceDistance(newParams.mouseAvoidanceDistance)
+            break
+        }
+
+        return newParams
+      })
+    },
+    [
+      updateSeparationParams,
+      updateAlignmentParams,
+      updateCohesionParams,
+      updateMouseAvoidanceDistance,
+    ]
+  )
 
   return {
     // 状態
@@ -159,12 +176,12 @@ export function useSimulation() {
     parameters,
     boids,
     fps: performanceMonitor.fps,
-    
+
     // アクション
     togglePlayPause,
     reset,
     setBoidCount: changeBoidCount,
     setMousePosition,
-    updateParameter
+    updateParameter,
   }
 }

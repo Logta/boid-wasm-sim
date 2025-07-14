@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useCallback, useEffect, useState } from "react"
 import type { Boid } from "./types"
 
 type WasmExports = {
@@ -6,7 +6,7 @@ type WasmExports = {
   updateSimulation: () => void
   setMousePosition: (x: number, y: number) => void
   getBoidCount: () => number
-  getAllBoidData: () => Array<{x: number, y: number, vx: number, vy: number}>
+  getAllBoidData: () => Array<{ x: number; y: number; vx: number; vy: number }>
   updateSeparationParams: (radius: number, strength: number) => void
   updateAlignmentParams: (radius: number, strength: number) => void
   updateCohesionParams: (radius: number, strength: number) => void
@@ -27,9 +27,9 @@ export function useBoidWasm() {
         // Go WASMランタイムをロード
         const wasmExecResponse = await fetch("/wasm_exec.js")
         const wasmExecText = await wasmExecResponse.text()
-        
+
         // wasm_exec.jsを実行してGoオブジェクトを作成
-        const script = document.createElement('script')
+        const script = document.createElement("script")
         script.textContent = wasmExecText
         document.head.appendChild(script)
 
@@ -38,7 +38,7 @@ export function useBoidWasm() {
         const wasmResponse = await fetch("/boid.wasm")
         const wasmBytes = await wasmResponse.arrayBuffer()
         const wasmModule = await WebAssembly.instantiate(wasmBytes, go.importObject)
-        
+
         // WASMを実行
         go.run(wasmModule.instance)
 
@@ -54,9 +54,9 @@ export function useBoidWasm() {
           updateCohesionParams: (window as any).updateCohesionParams,
           updateMouseAvoidanceDistance: (window as any).updateMouseAvoidanceDistance,
         }
-        
+
         setWasmModule(wasmExports)
-        
+
         // スクリプトをクリーンアップ
         document.head.removeChild(script)
       } catch (err) {
@@ -70,11 +70,14 @@ export function useBoidWasm() {
     loadWasm()
   }, [])
 
-  const initializeSimulation = useCallback((count: number, width: number, height: number) => {
-    if (wasmModule) {
-      wasmModule.initializeSimulation(count, width, height)
-    }
-  }, [wasmModule])
+  const initializeSimulation = useCallback(
+    (count: number, width: number, height: number) => {
+      if (wasmModule) {
+        wasmModule.initializeSimulation(count, width, height)
+      }
+    },
+    [wasmModule]
+  )
 
   const updateSimulation = useCallback(() => {
     if (wasmModule) {
@@ -82,11 +85,14 @@ export function useBoidWasm() {
     }
   }, [wasmModule])
 
-  const setMousePosition = useCallback((x: number, y: number) => {
-    if (wasmModule) {
-      wasmModule.setMousePosition(x, y)
-    }
-  }, [wasmModule])
+  const setMousePosition = useCallback(
+    (x: number, y: number) => {
+      if (wasmModule) {
+        wasmModule.setMousePosition(x, y)
+      }
+    },
+    [wasmModule]
+  )
 
   const getBoids = useCallback((): Boid[] => {
     if (!wasmModule) return []
@@ -101,41 +107,53 @@ export function useBoidWasm() {
         id: i,
         position: {
           x: data.x,
-          y: data.y
+          y: data.y,
         },
         velocity: {
           x: data.vx,
-          y: data.vy
-        }
+          y: data.vy,
+        },
       })
     }
 
     return boids
   }, [wasmModule])
 
-  const updateSeparationParams = useCallback((radius: number, strength: number) => {
-    if (wasmModule) {
-      wasmModule.updateSeparationParams(radius, strength)
-    }
-  }, [wasmModule])
+  const updateSeparationParams = useCallback(
+    (radius: number, strength: number) => {
+      if (wasmModule) {
+        wasmModule.updateSeparationParams(radius, strength)
+      }
+    },
+    [wasmModule]
+  )
 
-  const updateAlignmentParams = useCallback((radius: number, strength: number) => {
-    if (wasmModule) {
-      wasmModule.updateAlignmentParams(radius, strength)
-    }
-  }, [wasmModule])
+  const updateAlignmentParams = useCallback(
+    (radius: number, strength: number) => {
+      if (wasmModule) {
+        wasmModule.updateAlignmentParams(radius, strength)
+      }
+    },
+    [wasmModule]
+  )
 
-  const updateCohesionParams = useCallback((radius: number, strength: number) => {
-    if (wasmModule) {
-      wasmModule.updateCohesionParams(radius, strength)
-    }
-  }, [wasmModule])
+  const updateCohesionParams = useCallback(
+    (radius: number, strength: number) => {
+      if (wasmModule) {
+        wasmModule.updateCohesionParams(radius, strength)
+      }
+    },
+    [wasmModule]
+  )
 
-  const updateMouseAvoidanceDistance = useCallback((distance: number) => {
-    if (wasmModule) {
-      wasmModule.updateMouseAvoidanceDistance(distance)
-    }
-  }, [wasmModule])
+  const updateMouseAvoidanceDistance = useCallback(
+    (distance: number) => {
+      if (wasmModule) {
+        wasmModule.updateMouseAvoidanceDistance(distance)
+      }
+    },
+    [wasmModule]
+  )
 
   return {
     wasmModule,
@@ -148,6 +166,6 @@ export function useBoidWasm() {
     updateSeparationParams,
     updateAlignmentParams,
     updateCohesionParams,
-    updateMouseAvoidanceDistance
+    updateMouseAvoidanceDistance,
   }
 }

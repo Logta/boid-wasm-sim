@@ -1,22 +1,22 @@
+import type { SimulationParameters } from "@boid-wasm-sim/hooks"
+import {
+  ArrowUpDown,
+  Divide,
+  Magnet,
+  MousePointer,
+  Pause,
+  Play,
+  RotateCcw,
+  Settings,
+  Users,
+  Zap,
+} from "lucide-react"
 import { Button } from "./ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Label } from "./ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 import { Separator } from "./ui/separator"
 import { Slider } from "./ui/slider"
-import { 
-  Play, 
-  Pause, 
-  RotateCcw, 
-  Settings, 
-  Zap, 
-  Users,
-  Divide,
-  ArrowUpDown,
-  Magnet,
-  MousePointer
-} from "lucide-react"
-import type { SimulationParameters } from "@boid-wasm-sim/hooks"
 
 type SidebarProps = {
   boidCount: number
@@ -38,22 +38,20 @@ type ParameterSliderProps = {
   color?: string
 }
 
-function ParameterSlider({ 
-  label, 
-  value, 
-  min, 
-  max, 
-  step, 
+function ParameterSlider({
+  label,
+  value,
+  min,
+  max,
+  step,
   onChange,
-  color = "text-foreground"
+  color = "text-foreground",
 }: ParameterSliderProps) {
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center">
         <Label className={color}>{label}</Label>
-        <span className="text-sm font-mono bg-muted px-2 py-1 rounded">
-          {value}
-        </span>
+        <span className="text-sm font-mono bg-muted px-2 py-1 rounded">{value}</span>
       </div>
       <Slider
         value={[value]}
@@ -74,10 +72,10 @@ export function Sidebar({
   onBoidCountChange,
   onPlayPause,
   onReset,
-  onParameterChange
+  onParameterChange,
 }: SidebarProps) {
   return (
-    <aside role="complementary" className="w-80 border-r bg-background p-6 overflow-y-auto">
+    <aside className="w-80 border-r bg-background p-6 overflow-y-auto">
       <div className="space-y-6">
         <div>
           <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -85,7 +83,7 @@ export function Sidebar({
           </h2>
           <Separator className="mt-2" />
         </div>
-        
+
         {/* ボイド数設定 */}
         <Card>
           <CardHeader>
@@ -113,7 +111,7 @@ export function Sidebar({
             </div>
           </CardContent>
         </Card>
-        
+
         {/* シミュレーション制御 */}
         <Card>
           <CardHeader>
