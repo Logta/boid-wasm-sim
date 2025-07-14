@@ -4,12 +4,13 @@
   "description": "WASM module for boid simulation using Go",
   "type": "module",
   "scripts": {
-    "build": "mise exec -- env GOOS=js GOARCH=wasm go build -o boid.wasm . && cp boid.wasm ../web/main/public/ && cp wasm_exec.js ../web/main/public/",
-    "build:debug": "mise exec -- env GOOS=js GOARCH=wasm go build -gcflags='-N -l' -o boid.wasm . && cp boid.wasm ../web/main/public/ && cp wasm_exec.js ../web/main/public/",
+    "build": "mise exec -- env GOOS=js GOARCH=wasm go build -o boid.wasm . && cp boid.wasm ../web/main/public/",
+    "build:debug": "mise exec -- env GOOS=js GOARCH=wasm go build -gcflags='-N -l' -o boid.wasm . && cp boid.wasm ../web/main/public/",
     "test": "mise exec -- go test -v .",
     "test:watch": "mise exec -- go test -v . --watch",
-    "clean": "rm -f *.wasm",
-    "dev": "pnpm build:debug"
+    "clean": "rm -f *.wasm ../web/main/public/boid.wasm",
+    "dev": "pnpm build:debug",
+    "copy-runtime": "cp wasm_exec.js ../web/main/public/"
   },
   "files": [
     "*.wasm",
