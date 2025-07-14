@@ -43,6 +43,9 @@ jobs:
           pnpm lint
           pnpm format:check
       
+      - name: Build dependencies for type checking
+        run: pnpm --filter @boid-wasm-sim/hooks build
+      
       - name: Type check
         run: pnpm typecheck
       
