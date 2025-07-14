@@ -41,14 +41,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       
-      - name: Copy wasm_exec.js
-        run: |
-          # wasm_exec.jsを先にコピー
-          cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" web/main/public/
-          cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" wasm/
-      
       - name: Build WASM module
-        run: pnpm --filter @boid-wasm-sim/wasm build
+        run: |
+          pnpm --filter @boid-wasm-sim/wasm build
+          # wasm_exec.jsをdistディレクトリにコピー
+          cp wasm/wasm_exec.js web/main/public/ || echo "wasm_exec.js not found in wasm directory"
       
       - name: Build web packages
         run: |
