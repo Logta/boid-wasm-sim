@@ -34,12 +34,18 @@ export function useSimulation() {
   const [boids, setBoids] = useState<Boid[]>([])
 
   const animationFrameRef = useRef<number>(0)
+  const isPlayingRef = useRef(isPlaying)
   
-  const performance = usePerformanceMonitor(60, {
+  const performanceMonitor = usePerformanceMonitor(60, {
     onPerformanceWarning: (warning) => {
       console.warn(`Performance warning: FPS dropped to ${warning.fps} (target: ${warning.target})`)
     }
   })
+
+  // isPlayingRefを常に最新に保つ
+  useEffect(() => {
+    isPlayingRef.current = isPlaying
+  }, [isPlaying])
 
   // WASMロード完了後にシミュレーション初期化
   useEffect(() => {
@@ -50,34 +56,45 @@ export function useSimulation() {
   }, [wasmModule, isLoading, boidCount, initializeSimulation, getBoids])
 
   // アニメーションループ
-  const animate = useCallback(() => {
-    if (!isPlaying) return
+  const animate = useCallback(function animateLoop() {
+    console.log('animate called, isPlaying:', isPlayingRef.current)
+    if (!isPlayingRef.current) {
+      console.log('Animation stopped due to isPlaying=false')
+      return
+    }
 
-    performance.startFrame()
+    console.log('Running animation frame...')
+    performanceMonitor.startFrame()
     
     // シミュレーション更新
-    performance.startUpdate()
+    performanceMonitor.startUpdate()
     updateSimulation()
-    performance.endUpdate()
+    performanceMonitor.endUpdate()
     
     // レンダリング準備
-    performance.startRender()
+    performanceMonitor.startRender()
     setBoids(getBoids())
-    performance.endRender()
+    performanceMonitor.endRender()
     
-    performance.endFrame()
-    animationFrameRef.current = requestAnimationFrame(animate)
-  }, [isPlaying, updateSimulation, getBoids, performance])
+    performanceMonitor.endFrame()
+    animationFrameRef.current = requestAnimationFrame(animateLoop)
+  }, [updateSimulation, getBoids, performanceMonitor]) // isPlayingを依存配列から削除
 
   // 再生状態変更時のアニメーション制御
   useEffect(() => {
+    console.log('useEffect triggered, isPlaying:', isPlaying)
     if (isPlaying) {
-      performance.reset()
+      console.log('Starting animation...')
+      // アニメーション開始時のみリセット
+      performanceMonitor.reset()
       animationFrameRef.current = requestAnimationFrame(animate)
     } else {
+      console.log('Stopping animation...')
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current)
       }
+      // 停止時はFPSを0に設定するがタイマーはリセットしない
+      performanceMonitor.stop()
     }
 
     return () => {
@@ -85,7 +102,7 @@ export function useSimulation() {
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [isPlaying, animate, performance])
+  }, [isPlaying]) // animate と performanceMonitor を依存配列から削除
 
   const togglePlayPause = useCallback(() => {
     setIsPlaying(prev => !prev)
@@ -97,8 +114,8 @@ export function useSimulation() {
       initializeSimulation(boidCount, 800, 600)
       setBoids(getBoids())
     }
-    performance.reset()
-  }, [wasmModule, boidCount, initializeSimulation, getBoids, performance])
+    performanceMonitor.reset()
+  }, [wasmModule, boidCount, initializeSimulation, getBoids, performanceMonitor])
 
   const changeBoidCount = useCallback((count: number) => {
     setBoidCount(count)
@@ -147,10 +164,10 @@ export function useSimulation() {
     boidCount,
     parameters,
     boids,
-    fps: performance.fps,
-    frameTime: performance.frameTime,
-    updateTime: performance.updateTime,
-    renderTime: performance.renderTime,
+    fps: performanceMonitor.fps,
+    frameTime: performanceMonitor.frameTime,
+    updateTime: performanceMonitor.updateTime,
+    renderTime: performanceMonitor.renderTime,
     
     // アクション
     togglePlayPause,

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 
 type PerformanceWarning = {
   fps: number
@@ -27,8 +27,7 @@ export function usePerformanceMonitor(
   const renderStartRef = useRef<number>(0)
   
   const frameCountRef = useRef<number>(0)
-  const lastFpsUpdateRef = useRef<number>(0)
-  const frameTimesRef = useRef<number[]>([])
+  const lastTimeRef = useRef<number>(performance.now())
 
   const startFrame = useCallback(() => {
     frameStartRef.current = performance.now()
@@ -38,34 +37,30 @@ export function usePerformanceMonitor(
     const now = performance.now()
     const frameTime = now - frameStartRef.current
     
+    console.log('endFrame called, frameCount:', frameCountRef.current + 1, 'timeDiff:', now - lastTimeRef.current)
+    
     setFrameTime(frameTime)
-    frameTimesRef.current.push(frameTime)
-    
-    // 最大100フレーム分保持
-    if (frameTimesRef.current.length > 100) {
-      frameTimesRef.current.shift()
-    }
-    
     frameCountRef.current++
-    
-    // 1秒ごとにFPS更新
-    if (now - lastFpsUpdateRef.current >= 1000) {
-      const avgFrameTime = frameTimesRef.current.reduce((a, b) => a + b, 0) / frameTimesRef.current.length
-      const currentFps = Math.min(1000 / avgFrameTime, targetFps)
+
+    // 1秒ごとにFPS計算
+    if (now - lastTimeRef.current >= 1000) {
+      const seconds = (now - lastTimeRef.current) / 1000
+      const currentFps = Math.round(frameCountRef.current / seconds)
       
-      setFps(Math.round(currentFps))
+      console.log('FPS Update!', currentFps, 'frames in', seconds, 'seconds')
+      setFps(currentFps)
       
       // パフォーマンス警告
-      if (currentFps < warningThreshold && onPerformanceWarning) {
+      if (currentFps > 0 && currentFps < warningThreshold && onPerformanceWarning) {
         onPerformanceWarning({
           fps: currentFps,
           target: targetFps,
-          frameTime: avgFrameTime
+          frameTime: frameTime
         })
       }
       
-      lastFpsUpdateRef.current = now
       frameCountRef.current = 0
+      lastTimeRef.current = now
     }
   }, [targetFps, warningThreshold, onPerformanceWarning])
 
@@ -93,8 +88,12 @@ export function usePerformanceMonitor(
     setUpdateTime(0)
     setRenderTime(0)
     frameCountRef.current = 0
-    lastFpsUpdateRef.current = performance.now()
-    frameTimesRef.current = []
+    lastTimeRef.current = performance.now()
+  }, [])
+
+  const stop = useCallback(() => {
+    setFps(0)
+    // タイマーはリセットしない - 次回開始時により正確な計測のため
   }, [])
 
   return {
@@ -108,6 +107,7 @@ export function usePerformanceMonitor(
     endUpdate,
     startRender,
     endRender,
-    reset
+    reset,
+    stop
   }
 }
