@@ -18,6 +18,10 @@ func initializeSimulation(this js.Value, args []js.Value) interface{} {
 	canvasHeight = height
 	boids = make([]Boid, 0, boidCount)
 
+	// Initialize spatial grid with optimal cell size
+	cellSize := 75.0 // Slightly larger than max interaction radius
+	spatialGrid = NewSpatialGrid(width, height, cellSize)
+
 	rand.Seed(time.Now().UnixNano())
 
 	for i := 0; i < boidCount; i++ {
@@ -30,13 +34,20 @@ func initializeSimulation(this js.Value, args []js.Value) interface{} {
 }
 
 func updateSimulation(this js.Value, args []js.Value) interface{} {
+	// Clear and rebuild spatial grid
+	spatialGrid.Clear()
+	for i := range boids {
+		spatialGrid.Insert(i, boids[i].Position)
+	}
+
+	// Update each boid
 	for i := range boids {
 		boid := &boids[i]
 
-		// Calculate flocking forces
-		separation := boid.separate()
-		alignment := boid.align()
-		cohesionForce := boid.cohesion()
+		// Calculate flocking forces using spatial grid
+		separation := boid.separate(i)
+		alignment := boid.align(i)
+		cohesionForce := boid.cohesion(i)
 		mouseAvoidance := boid.avoidMouse()
 
 		// Apply forces
