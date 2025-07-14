@@ -2,7 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { App } from "./App"
 
-const mockSimulation = {
+const createMockSimulation = () => ({
   isLoading: false,
   error: null,
   isPlaying: false,
@@ -21,12 +21,17 @@ const mockSimulation = {
     { x: 200, y: 250, vx: 0, vy: 1 }
   ],
   fps: 60,
+  frameTime: 16,
+  updateTime: 2,
+  renderTime: 4,
   togglePlayPause: vi.fn(),
   reset: vi.fn(),
   setBoidCount: vi.fn(),
   setMousePosition: vi.fn(),
   updateParameter: vi.fn()
-}
+})
+
+let mockSimulation = createMockSimulation()
 
 vi.mock("@boid-wasm-sim/components", async () => {
   const actual = await vi.importActual("@boid-wasm-sim/components")
@@ -39,6 +44,7 @@ vi.mock("@boid-wasm-sim/components", async () => {
 describe("App Integration", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockSimulation = createMockSimulation()
   })
 
   it("完全なアプリケーションが表示される", async () => {
@@ -52,7 +58,7 @@ describe("App Integration", () => {
   })
 
   it("ローディング状態が表示される", () => {
-    vi.mocked(mockSimulation).isLoading = true
+    mockSimulation.isLoading = true
     
     render(<App />)
     
@@ -60,8 +66,8 @@ describe("App Integration", () => {
   })
 
   it("エラー状態が表示される", () => {
-    vi.mocked(mockSimulation).error = new Error("WASM load failed")
-    vi.mocked(mockSimulation).isLoading = false
+    mockSimulation.error = new Error("WASM load failed")
+    mockSimulation.isLoading = false
     
     render(<App />)
     
@@ -109,14 +115,26 @@ describe("App Integration", () => {
     render(<App />)
     
     const canvas = screen.getByRole("img", { name: /simulation canvas/i })
-    const mouseEvent = new MouseEvent("mousemove", {
+    
+    // getBoundingClientRectをモック
+    vi.spyOn(canvas, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      width: 800,
+      height: 600,
+      right: 800,
+      bottom: 600,
+      x: 0,
+      y: 0,
+      toJSON: () => {}
+    })
+    
+    fireEvent.mouseMove(canvas, {
       clientX: 150,
       clientY: 200
     })
     
-    canvas.dispatchEvent(mouseEvent)
-    
-    expect(mockSimulation.setMousePosition).toHaveBeenCalled()
+    expect(mockSimulation.setMousePosition).toHaveBeenCalledWith(150, 200)
   })
 
   it("FPSが表示される", () => {
@@ -133,12 +151,25 @@ describe("App Integration", () => {
   })
 
   it("パラメータ値が正しく表示される", () => {
+    // 重複を避けるため、ユニークな値を使用
+    mockSimulation.parameters = {
+      separationRadius: 25,
+      separationStrength: 1.5,
+      alignmentRadius: 55,
+      alignmentStrength: 1.2,
+      cohesionRadius: 45,
+      cohesionStrength: 0.8,
+      mouseAvoidanceDistance: 120
+    }
+    
     render(<App />)
     
     expect(screen.getByText("25")).toBeInTheDocument() // separationRadius
     expect(screen.getByText("1.5")).toBeInTheDocument() // separationStrength
-    expect(screen.getByText("50")).toBeInTheDocument() // alignmentRadius/cohesionRadius
-    expect(screen.getByText("1")).toBeInTheDocument() // alignmentStrength/cohesionStrength
-    expect(screen.getByText("100")).toBeInTheDocument() // mouseAvoidanceDistance
+    expect(screen.getByText("55")).toBeInTheDocument() // alignmentRadius
+    expect(screen.getByText("1.2")).toBeInTheDocument() // alignmentStrength
+    expect(screen.getByText("45")).toBeInTheDocument() // cohesionRadius
+    expect(screen.getByText("0.8")).toBeInTheDocument() // cohesionStrength
+    expect(screen.getByText("120")).toBeInTheDocument() // mouseAvoidanceDistance
   })
 })
