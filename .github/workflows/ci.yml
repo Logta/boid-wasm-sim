@@ -44,7 +44,9 @@ jobs:
           pnpm format:check
       
       - name: Build dependencies for type checking
-        run: pnpm --filter @boid-wasm-sim/hooks build
+        run: |
+          pnpm --filter @boid-wasm-sim/hooks build
+          pnpm --filter @boid-wasm-sim/components build
       
       - name: Type check
         run: pnpm typecheck
