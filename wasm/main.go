@@ -120,6 +120,22 @@ func updateMouseAvoidanceDistance(this js.Value, args []js.Value) interface{} {
 	return nil
 }
 
+// Batch API for efficient data retrieval
+func getAllBoidData(this js.Value, args []js.Value) interface{} {
+	result := js.Global().Get("Array").New(len(boids))
+	
+	for i, boid := range boids {
+		boidData := js.Global().Get("Object").New()
+		boidData.Set("x", boid.Position.X)
+		boidData.Set("y", boid.Position.Y)
+		boidData.Set("vx", boid.Velocity.X)
+		boidData.Set("vy", boid.Velocity.Y)
+		result.SetIndex(i, boidData)
+	}
+	
+	return result
+}
+
 func main() {
 	// Initialize default parameters
 	params = SimulationParams{
@@ -145,6 +161,7 @@ func main() {
 	js.Global().Set("updateAlignmentParams", js.FuncOf(updateAlignmentParams))
 	js.Global().Set("updateCohesionParams", js.FuncOf(updateCohesionParams))
 	js.Global().Set("updateMouseAvoidanceDistance", js.FuncOf(updateMouseAvoidanceDistance))
+	js.Global().Set("getAllBoidData", js.FuncOf(getAllBoidData))
 
 	// Keep the program running
 	select {}

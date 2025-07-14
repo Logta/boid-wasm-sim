@@ -20,6 +20,8 @@ export function BoidRenderer({
   onMouseMove 
 }: BoidRendererProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const backgroundCanvasRef = useRef<HTMLCanvasElement>(null)
+  const gradientRef = useRef<CanvasGradient | null>(null)
 
   function drawBoid(ctx: CanvasRenderingContext2D, boid: Boid) {
     const size = 6
@@ -36,11 +38,13 @@ export function BoidRenderer({
     ctx.lineTo(-size / 2, size / 2)
     ctx.closePath()
     
-    // グラデーション効果
-    const gradient = ctx.createLinearGradient(-size, -size, size, size)
-    gradient.addColorStop(0, "#3b82f6")
-    gradient.addColorStop(1, "#60a5fa")
-    ctx.fillStyle = gradient
+    // 再利用可能なグラデーション
+    if (!gradientRef.current) {
+      gradientRef.current = ctx.createLinearGradient(-size, -size, size, size)
+      gradientRef.current.addColorStop(0, "#3b82f6")
+      gradientRef.current.addColorStop(1, "#60a5fa")
+    }
+    ctx.fillStyle = gradientRef.current
     ctx.fill()
     
     // 境界線
@@ -51,36 +55,47 @@ export function BoidRenderer({
     ctx.restore()
   }
 
+  function renderBackground() {
+    const bgCanvas = backgroundCanvasRef.current
+    if (!bgCanvas) return
+
+    const bgCtx = bgCanvas.getContext("2d")
+    if (!bgCtx) return
+
+    // 背景をクリア（より美しいグラデーション背景）
+    const gradient = bgCtx.createLinearGradient(0, 0, width, height)
+    gradient.addColorStop(0, "#0f172a")
+    gradient.addColorStop(1, "#1e293b")
+    bgCtx.fillStyle = gradient
+    bgCtx.fillRect(0, 0, width, height)
+
+    // 格子パターンの描画（一度だけ）
+    bgCtx.strokeStyle = "rgba(51, 65, 85, 0.3)"
+    bgCtx.lineWidth = 1
+    const gridSize = 50
+    bgCtx.beginPath()
+    for (let x = 0; x <= width; x += gridSize) {
+      bgCtx.moveTo(x, 0)
+      bgCtx.lineTo(x, height)
+    }
+    for (let y = 0; y <= height; y += gridSize) {
+      bgCtx.moveTo(0, y)
+      bgCtx.lineTo(width, y)
+    }
+    bgCtx.stroke()
+  }
+
   function render() {
     const canvas = canvasRef.current
-    if (!canvas) return
+    const bgCanvas = backgroundCanvasRef.current
+    if (!canvas || !bgCanvas) return
 
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    // 背景をクリア（より美しいグラデーション背景）
-    const gradient = ctx.createLinearGradient(0, 0, width, height)
-    gradient.addColorStop(0, "#0f172a")
-    gradient.addColorStop(1, "#1e293b")
-    ctx.fillStyle = gradient
-    ctx.fillRect(0, 0, width, height)
-
-    // 格子パターンの描画（オプション）
-    ctx.strokeStyle = "rgba(51, 65, 85, 0.3)"
-    ctx.lineWidth = 1
-    const gridSize = 50
-    for (let x = 0; x <= width; x += gridSize) {
-      ctx.beginPath()
-      ctx.moveTo(x, 0)
-      ctx.lineTo(x, height)
-      ctx.stroke()
-    }
-    for (let y = 0; y <= height; y += gridSize) {
-      ctx.beginPath()
-      ctx.moveTo(0, y)
-      ctx.lineTo(width, y)
-      ctx.stroke()
-    }
+    // 背景をコピー（事前レンダリング済み）
+    ctx.clearRect(0, 0, width, height)
+    ctx.drawImage(bgCanvas, 0, 0)
 
     // 全てのboidを描画
     boids.forEach(boid => drawBoid(ctx, boid))
@@ -98,12 +113,23 @@ export function BoidRenderer({
   }
 
   useEffect(() => {
+    renderBackground()
+  }, [width, height])
+
+  useEffect(() => {
     render()
-  }, [boids, width, height])
+  }, [boids])
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center relative bg-muted/20">
       <Card className="relative overflow-hidden">
+        <canvas
+          ref={backgroundCanvasRef}
+          width={width}
+          height={height}
+          className="absolute inset-0"
+          style={{ display: "none" }}
+        />
         <canvas
           ref={canvasRef}
           role="img"

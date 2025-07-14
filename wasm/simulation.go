@@ -1,5 +1,7 @@
 package main
 
+import "math"
+
 // SimulationParams holds all simulation parameters
 type SimulationParams struct {
 	SeparationRadius       float64
@@ -24,10 +26,12 @@ var (
 func (b *Boid) separate() Vector2 {
 	steer := Vector2{X: 0, Y: 0}
 	count := 0
+	separationRadiusSquared := params.SeparationRadius * params.SeparationRadius
 
 	for _, other := range boids {
-		distance := b.Position.Distance(other.Position)
-		if distance > 0 && distance < params.SeparationRadius {
+		distanceSquared := b.Position.DistanceSquared(other.Position)
+		if distanceSquared > 0 && distanceSquared < separationRadiusSquared {
+			distance := math.Sqrt(distanceSquared) // Only calculate sqrt when needed
 			diff := b.Position.Sub(other.Position)
 			diff = diff.Normalize()
 			diff = diff.Div(distance) // Weight by distance
@@ -51,10 +55,11 @@ func (b *Boid) separate() Vector2 {
 func (b *Boid) align() Vector2 {
 	sum := Vector2{X: 0, Y: 0}
 	count := 0
+	alignmentRadiusSquared := params.AlignmentRadius * params.AlignmentRadius
 
 	for _, other := range boids {
-		distance := b.Position.Distance(other.Position)
-		if distance > 0 && distance < params.AlignmentRadius {
+		distanceSquared := b.Position.DistanceSquared(other.Position)
+		if distanceSquared > 0 && distanceSquared < alignmentRadiusSquared {
 			sum = sum.Add(other.Velocity)
 			count++
 		}
@@ -75,10 +80,11 @@ func (b *Boid) align() Vector2 {
 func (b *Boid) cohesion() Vector2 {
 	sum := Vector2{X: 0, Y: 0}
 	count := 0
+	cohesionRadiusSquared := params.CohesionRadius * params.CohesionRadius
 
 	for _, other := range boids {
-		distance := b.Position.Distance(other.Position)
-		if distance > 0 && distance < params.CohesionRadius {
+		distanceSquared := b.Position.DistanceSquared(other.Position)
+		if distanceSquared > 0 && distanceSquared < cohesionRadiusSquared {
 			sum = sum.Add(other.Position)
 			count++
 		}
@@ -93,8 +99,9 @@ func (b *Boid) cohesion() Vector2 {
 }
 
 func (b *Boid) avoidMouse() Vector2 {
-	distance := b.Position.Distance(mousePos)
-	if distance < params.MouseAvoidanceDistance {
+	mouseAvoidanceDistanceSquared := params.MouseAvoidanceDistance * params.MouseAvoidanceDistance
+	distanceSquared := b.Position.DistanceSquared(mousePos)
+	if distanceSquared < mouseAvoidanceDistanceSquared {
 		steer := b.Position.Sub(mousePos)
 		steer = steer.Normalize()
 		return steer.Mul(b.MaxForce * 3.0)

@@ -59,3 +59,10 @@ func (v Vector2) Distance(other Vector2) float64 {
 	dy := v.Y - other.Y
 	return math.Sqrt(dx*dx + dy*dy)
 }
+
+// DistanceSquared returns the squared distance between two vectors (faster for comparisons)
+func (v Vector2) DistanceSquared(other Vector2) float64 {
+	dx := v.X - other.X
+	dy := v.Y - other.Y
+	return dx*dx + dy*dy
+}

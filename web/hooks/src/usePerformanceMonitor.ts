@@ -37,8 +37,6 @@ export function usePerformanceMonitor(
     const now = performance.now()
     const frameTime = now - frameStartRef.current
     
-    console.log('endFrame called, frameCount:', frameCountRef.current + 1, 'timeDiff:', now - lastTimeRef.current)
-    
     setFrameTime(frameTime)
     frameCountRef.current++
 
@@ -47,7 +45,6 @@ export function usePerformanceMonitor(
       const seconds = (now - lastTimeRef.current) / 1000
       const currentFps = Math.round(frameCountRef.current / seconds)
       
-      console.log('FPS Update!', currentFps, 'frames in', seconds, 'seconds')
       setFps(currentFps)
       
       // パフォーマンス警告

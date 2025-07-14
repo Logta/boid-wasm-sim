@@ -10,6 +10,7 @@ type WasmExports = {
   getBoidPositionY: (index: number) => number
   getBoidVelocityX: (index: number) => number
   getBoidVelocityY: (index: number) => number
+  getAllBoidData: () => Array<{x: number, y: number, vx: number, vy: number}>
   updateSeparationParams: (radius: number, strength: number) => void
   updateAlignmentParams: (radius: number, strength: number) => void
   updateCohesionParams: (radius: number, strength: number) => void
@@ -55,6 +56,7 @@ export function useBoidWasm() {
           getBoidPositionY: (window as any).getBoidPositionY,
           getBoidVelocityX: (window as any).getBoidVelocityX,
           getBoidVelocityY: (window as any).getBoidVelocityY,
+          getAllBoidData: (window as any).getAllBoidData,
           updateSeparationParams: (window as any).updateSeparationParams,
           updateAlignmentParams: (window as any).updateAlignmentParams,
           updateCohesionParams: (window as any).updateCohesionParams,
@@ -97,19 +99,21 @@ export function useBoidWasm() {
   const getBoids = useCallback((): Boid[] => {
     if (!wasmModule) return []
 
-    const count = wasmModule.getBoidCount()
+    // バッチAPIを使用して効率的にデータを取得
+    const boidDataArray = wasmModule.getAllBoidData()
     const boids: Boid[] = []
 
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < boidDataArray.length; i++) {
+      const data = boidDataArray[i]
       boids.push({
         id: i,
         position: {
-          x: wasmModule.getBoidPositionX(i),
-          y: wasmModule.getBoidPositionY(i)
+          x: data.x,
+          y: data.y
         },
         velocity: {
-          x: wasmModule.getBoidVelocityX(i),
-          y: wasmModule.getBoidVelocityY(i)
+          x: data.vx,
+          y: data.vy
         }
       })
     }

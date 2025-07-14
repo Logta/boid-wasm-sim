@@ -57,13 +57,10 @@ export function useSimulation() {
 
   // アニメーションループ
   const animate = useCallback(function animateLoop() {
-    console.log('animate called, isPlaying:', isPlayingRef.current)
     if (!isPlayingRef.current) {
-      console.log('Animation stopped due to isPlaying=false')
       return
     }
 
-    console.log('Running animation frame...')
     performanceMonitor.startFrame()
     
     // シミュレーション更新
@@ -78,18 +75,15 @@ export function useSimulation() {
     
     performanceMonitor.endFrame()
     animationFrameRef.current = requestAnimationFrame(animateLoop)
-  }, [updateSimulation, getBoids, performanceMonitor]) // isPlayingを依存配列から削除
+  }, [updateSimulation, getBoids, performanceMonitor])
 
   // 再生状態変更時のアニメーション制御
   useEffect(() => {
-    console.log('useEffect triggered, isPlaying:', isPlaying)
     if (isPlaying) {
-      console.log('Starting animation...')
       // アニメーション開始時のみリセット
       performanceMonitor.reset()
       animationFrameRef.current = requestAnimationFrame(animate)
     } else {
-      console.log('Stopping animation...')
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current)
       }
@@ -102,7 +96,7 @@ export function useSimulation() {
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [isPlaying]) // animate と performanceMonitor を依存配列から削除
+  }, [isPlaying])
 
   const togglePlayPause = useCallback(() => {
     setIsPlaying(prev => !prev)

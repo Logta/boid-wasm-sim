@@ -20,7 +20,6 @@ export function App() {
     setMousePosition,
     updateParameter
   } = useSimulation()
-  console.log(fps)
 
   if (isLoading) {
     return (
