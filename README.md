@@ -4,7 +4,7 @@ Craig ReynoldsのBoidモデルを参考に、群れシミュレーションを�
 
 ## 概要
 
-基本的な群れの動きをWebブラウザで表示できるシンプルなアプリケーションです。GoのWebAssemblyとReactで構成されており、t-wadaのTDD手法を参考に開発を進めました。
+基本的な群れの動きをWebブラウザで表示できるシンプルなアプリケーションです。GoのWebAssemblyとReactで構成されています。
 
 ## 特徴
 
