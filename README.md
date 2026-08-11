@@ -131,13 +131,13 @@ boid-wasm-sim/
 ### 手動実行
 ```bash
 # GitHub Actions相当のローカルテスト
-mise gh-test
+mise run gh-test
 
 # GitHub Actions相当のローカルビルド
-mise gh-build
+mise run gh-build
 
 # GitHub Pages用ビルド
-mise gh-deploy
+mise run gh-deploy
 ```
 
 ## ライセンス
