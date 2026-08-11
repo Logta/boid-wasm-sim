@@ -57,6 +57,7 @@ jobs:
       - name: Run TypeScript tests
         run: |
           pnpm --filter @boid-wasm-sim/hooks test
+          pnpm --filter @boid-wasm-sim/components test
           pnpm --filter @boid-wasm-sim/web test
       
       - name: Build WASM module
