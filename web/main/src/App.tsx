@@ -36,9 +36,7 @@ export function App() {
           <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto">
             <span className="text-2xl">⚠️</span>
           </div>
-          <div className="text-xl font-semibold text-destructive">
-            シミュレーション読み込みエラー
-          </div>
+          <div className="text-xl font-semibold text-destructive">シミュレーションエラー</div>
           <div className="text-muted-foreground">{error.message}</div>
           <button
             type="button"

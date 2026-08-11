@@ -27,8 +27,8 @@ Go WebAssembly + React によるBoid群れシミュレーション。pnpm worksp
 ## ディレクトリ構成
 
 - `wasm/` — Go WebAssemblyのコアロジック（テスト最優先）
-- `web/hooks/` — カスタムフック（型テスト含む）
-- `web/components/` — UIコンポーネント
+- `web/hooks/` — カスタムフック（実装を実際に呼ぶ振る舞いテストを含む）
+- `web/components/` — UIコンポーネント（テスト含む）
 - `web/main/` — メインアプリ（Vite + React）
 
 ## よく使うコマンド

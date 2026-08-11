@@ -66,8 +66,11 @@ pnpm --filter @boid-wasm-sim/web build
 # WASMコアロジックのテスト（最も重要）
 pnpm --filter @boid-wasm-sim/wasm test
 
-# 型安全性のテスト
+# カスタムフックのテスト
 pnpm --filter @boid-wasm-sim/hooks test
+
+# UIコンポーネントのテスト
+pnpm --filter @boid-wasm-sim/components test
 
 # 基本統合テスト
 pnpm --filter @boid-wasm-sim/web test
@@ -78,7 +81,7 @@ pnpm --filter @boid-wasm-sim/web test
 ```
 boid-wasm-sim/
 ├── web/
-│   ├── hooks/              # カスタムフック（型テスト含む）
+│   ├── hooks/              # カスタムフック
 │   ├── components/         # UIコンポーネント
 │   └── main/              # メインアプリ
 ├── wasm/                  # Go WebAssemblyモジュール
