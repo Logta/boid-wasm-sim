@@ -1,4 +1,4 @@
-import { copyFileSync, existsSync, mkdirSync } from "node:fs"
+import { copyFileSync, existsSync } from "node:fs"
 import { join } from "node:path"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
@@ -11,9 +11,9 @@ export default defineConfig({
       name: "copy-wasm",
       buildStart() {
         // WASMファイルをpublicディレクトリにコピー
-        const wasmSrc = join(__dirname, "../../wasm/boid.wasm")
-        const wasmExecSrc = join(__dirname, "../../wasm/wasm_exec.js")
-        const publicDir = join(__dirname, "public")
+        const wasmSrc = join(import.meta.dirname, "../../wasm/boid.wasm")
+        const wasmExecSrc = join(import.meta.dirname, "../../wasm/wasm_exec.js")
+        const publicDir = join(import.meta.dirname, "public")
 
         // WASMファイルをコピー
         if (existsSync(wasmSrc)) {
