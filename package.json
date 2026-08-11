@@ -19,8 +19,8 @@
     "check:fix": "biome check --write ."
   },
   "devDependencies": {
-    "@types/node": "^24.0.13",
-    "typescript": "^5.8.3",
-    "@biomejs/biome": "2.1.1"
+    "@biomejs/biome": "2.5.6",
+    "@types/node": "24.13.1",
+    "typescript": "catalog:"
   }
 }
