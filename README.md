@@ -17,8 +17,8 @@ Craig ReynoldsのBoidモデルを参考に、群れシミュレーションを�
 ## 必要環境
 
 - [mise](https://github.com/jdx/mise) - 開発環境管理
-- Go 1.24.5（mise で管理）
-- Node.js 24.4.0（mise で管理）
+- Go 1.26.5（mise で管理）
+- Node.js 24.19.0（mise で管理）
 - pnpm（mise で管理）
 
 ## セットアップ
