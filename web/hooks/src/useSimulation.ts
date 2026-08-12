@@ -17,7 +17,7 @@ export function useSimulation() {
   const {
     wasmModule,
     isLoading,
-    error,
+    error: wasmError,
     initializeSimulation,
     updateSimulation,
     setMousePosition: setWasmMousePosition,
@@ -32,6 +32,9 @@ export function useSimulation() {
   const [boidCount, setBoidCount] = useState(100)
   const [parameters, setParameters] = useState<SimulationParameters>(DEFAULT_PARAMETERS)
   const [boids, setBoids] = useState<Boid[]>([])
+  // アニメーションループ実行中の例外(WASM側のクラッシュ等)を保持する。
+  // wasmErrorはロード失敗時のみセットされるため、実行時エラーは別で管理する。
+  const [runtimeError, setRuntimeError] = useState<Error | null>(null)
 
   const animationFrameRef = useRef<number>(0)
   const isPlayingRef = useRef(isPlaying)
@@ -62,20 +65,29 @@ export function useSimulation() {
         return
       }
 
-      performanceMonitor.startFrame()
+      try {
+        performanceMonitor.startFrame()
 
-      // シミュレーション更新
-      performanceMonitor.startUpdate()
-      updateSimulation()
-      performanceMonitor.endUpdate()
+        // シミュレーション更新
+        performanceMonitor.startUpdate()
+        updateSimulation()
+        performanceMonitor.endUpdate()
 
-      // レンダリング準備
-      performanceMonitor.startRender()
-      setBoids(getBoids())
-      performanceMonitor.endRender()
+        // レンダリング準備
+        performanceMonitor.startRender()
+        setBoids(getBoids())
+        performanceMonitor.endRender()
 
-      performanceMonitor.endFrame()
-      animationFrameRef.current = requestAnimationFrame(animateLoop)
+        performanceMonitor.endFrame()
+        animationFrameRef.current = requestAnimationFrame(animateLoop)
+      } catch (err) {
+        // WASM側の異常等でフレーム処理が失敗した場合、無音のままフリーズさせず
+        // 再生を止めてエラー状態に遷移する(次フレームの予約もしない)
+        setRuntimeError(
+          err instanceof Error ? err : new Error("シミュレーションの実行中にエラーが発生しました")
+        )
+        setIsPlaying(false)
+      }
     },
     [updateSimulation, getBoids, performanceMonitor]
   )
@@ -108,6 +120,10 @@ export function useSimulation() {
 
   const reset = useCallback(() => {
     setIsPlaying(false)
+    setRuntimeError(null)
+    // boidCount自体は変更しないため、boidCountを依存配列に持つ
+    // 初期化用useEffectはここでは再発火しない。そのため直接呼び出しても
+    // changeBoidCountのような二重初期化にはならない。
     if (wasmModule) {
       initializeSimulation(boidCount, 800, 600)
       setBoids(getBoids())
@@ -115,16 +131,13 @@ export function useSimulation() {
     performanceMonitor.reset()
   }, [wasmModule, boidCount, initializeSimulation, getBoids, performanceMonitor])
 
-  const changeBoidCount = useCallback(
-    (count: number) => {
-      setBoidCount(count)
-      if (wasmModule) {
-        initializeSimulation(count, 800, 600)
-        setBoids(getBoids())
-      }
-    },
-    [wasmModule, initializeSimulation, getBoids]
-  )
+  // boidCount変更時の再初期化は、boidCountを依存配列に含むuseEffect
+  // (WASMロード完了後にシミュレーション初期化)が一元的に担う。
+  // ここで直接initializeSimulation/getBoidsを呼ぶと、state更新後の
+  // 再レンダーでそのuseEffectも実行され、二重に初期化されてしまう。
+  const changeBoidCount = useCallback((count: number) => {
+    setBoidCount(count)
+  }, [])
 
   const setMousePosition = useCallback(
     (x: number, y: number) => {
@@ -171,7 +184,7 @@ export function useSimulation() {
   return {
     // 状態
     isLoading,
-    error,
+    error: wasmError ?? runtimeError,
     isPlaying,
     boidCount,
     parameters,

@@ -26,6 +26,9 @@ yarn-error.log*
 .vscode
 .idea
 
+# Claude Code (personal settings only; .claude/settings.json is shared and committed)
+.claude/settings.local.json
+
 # OS files
 .DS_Store
 

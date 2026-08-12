@@ -17,8 +17,8 @@ Craig ReynoldsのBoidモデルを参考に、群れシミュレーションを�
 ## 必要環境
 
 - [mise](https://github.com/jdx/mise) - 開発環境管理
-- Go 1.24.5（mise で管理）
-- Node.js 24.4.0（mise で管理）
+- Go 1.26.5（mise で管理）
+- Node.js 24.19.0（mise で管理）
 - pnpm（mise で管理）
 
 ## セットアップ
@@ -66,8 +66,11 @@ pnpm --filter @boid-wasm-sim/web build
 # WASMコアロジックのテスト（最も重要）
 pnpm --filter @boid-wasm-sim/wasm test
 
-# 型安全性のテスト
+# カスタムフックのテスト
 pnpm --filter @boid-wasm-sim/hooks test
+
+# UIコンポーネントのテスト
+pnpm --filter @boid-wasm-sim/components test
 
 # 基本統合テスト
 pnpm --filter @boid-wasm-sim/web test
@@ -78,13 +81,12 @@ pnpm --filter @boid-wasm-sim/web test
 ```
 boid-wasm-sim/
 ├── web/
-│   ├── hooks/              # カスタムフック（型テスト含む）
+│   ├── hooks/              # カスタムフック
 │   ├── components/         # UIコンポーネント
 │   └── main/              # メインアプリ
 ├── wasm/                  # Go WebAssemblyモジュール
-│   ├── *.go               # コアロジック
-│   ├── *_test.go          # 充実したテストスイート
-│   ├── spatial_grid.go    # 空間分割最適化
+│   ├── main.go            # JavaScript連携（エクスポート関数の登録のみ）
+│   ├── internal/          # 群れ行動のコアロジック（詳細はwasm/README.md）
 │   └── package.json
 ├── CLAUDE.md              # 開発指針
 └── .mise.toml            # 環境設定
@@ -131,13 +133,13 @@ boid-wasm-sim/
 ### 手動実行
 ```bash
 # GitHub Actions相当のローカルテスト
-mise gh-test
+mise run gh-test
 
 # GitHub Actions相当のローカルビルド
-mise gh-build
+mise run gh-build
 
 # GitHub Pages用ビルド
-mise gh-deploy
+mise run gh-deploy
 ```
 
 ## ライセンス

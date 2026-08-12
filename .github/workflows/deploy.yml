@@ -1,7 +1,12 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
+  # CI(test/lint/build)が成功した場合のみデプロイする。
+  # pushで直接トリガーすると、CIが赤のままの状態でも
+  # デプロイが独立して走ってしまうため。
+  workflow_run:
+    workflows: [ "CI" ]
+    types: [ completed ]
     branches: [ main ]
   workflow_dispatch:
 
@@ -18,20 +23,28 @@ jobs:
   build:
     name: Build for GitHub Pages
     runs-on: ubuntu-latest
-    
+    # workflow_dispatchでの手動実行、またはCIが成功した場合のみビルドする
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # workflow_runイベントはデフォルトでデフォルトブランチをcheckoutするため、
+          # CIを成功させたコミット自体を明示的にcheckoutする
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: 1.24
+          go-version: 1.26.5
           
       - name: Install pnpm
         uses: pnpm/action-setup@v4

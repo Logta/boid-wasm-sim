@@ -1,7 +1,7 @@
 [tools]
-go = "1.24.5"
-node = "24.4.0"
-pnpm = "latest"
+go = "1.26.5"
+node = "24.19.0"
+pnpm = "11.20.0"
 
 [tasks]
 # 開発用コマンド
@@ -10,26 +10,26 @@ start = "pnpm dev"
 
 # ビルド関連
 build = "pnpm build"
-build-all = "pnpm build:all"
+build-all = "pnpm build"
 rebuild = "pnpm rebuild"
 clean = "pnpm clean"
 
 # 個別パッケージビルド
-build-components = "pnpm components:build"
-build-wasm = "pnpm wasm:build"
-build-web = "pnpm web:build"
+build-components = "pnpm --filter @boid-wasm-sim/components build"
+build-wasm = "pnpm --filter @boid-wasm-sim/wasm build"
+build-web = "pnpm --filter @boid-wasm-sim/web build:only"
 
 # 開発用（個別パッケージ）
-dev-components = "pnpm components:dev"
-dev-wasm = "pnpm wasm:dev"
-dev-web = "pnpm web:dev"
+dev-components = "pnpm --filter @boid-wasm-sim/components dev"
+dev-wasm = "pnpm --filter @boid-wasm-sim/wasm dev"
+dev-web = "pnpm --filter @boid-wasm-sim/web dev"
 
 # テスト関連
 test = "pnpm test"
 test-all = "pnpm test:all"
-test-components = "pnpm components:test"
-test-wasm = "pnpm wasm:test"
-test-web = "pnpm web:test"
+test-components = "pnpm --filter @boid-wasm-sim/components test"
+test-wasm = "pnpm --filter @boid-wasm-sim/wasm test"
+test-web = "pnpm --filter @boid-wasm-sim/web test"
 
 # 型チェック・リント
 typecheck = "pnpm typecheck"
@@ -41,7 +41,7 @@ check = "pnpm check"
 check-fix = "pnpm check:fix"
 
 # プレビュー
-preview = "pnpm web:preview"
+preview = "pnpm preview"
 
 # 依存関係管理
 install = "pnpm install"
@@ -49,7 +49,7 @@ update = "pnpm update"
 
 # CI用
 ci-install = "pnpm install --frozen-lockfile"
-ci-build = "pnpm build:all"
+ci-build = "pnpm build"
 ci-test = "pnpm test:all"
 ci-check = "pnpm typecheck && pnpm lint"
 
@@ -62,3 +62,6 @@ gh-deploy = "cd web/main && VITE_BASE_PATH=/boid-wasm-sim/ pnpm build"
 # セキュリティチェック
 security-audit = "pnpm audit --audit-level moderate"
 security-check = "pnpm audit"
+
+[settings]
+minimum_release_age = "7d"

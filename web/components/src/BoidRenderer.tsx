@@ -93,7 +93,9 @@ export function BoidRenderer({ width, height, boids, fps, onMouseMove }: BoidRen
     ctx.drawImage(bgCanvas, 0, 0)
 
     // 全てのboidを描画
-    boids.forEach((boid) => drawBoid(ctx, boid))
+    boids.forEach((boid) => {
+      drawBoid(ctx, boid)
+    })
   }, [boids, width, height])
 
   function handleMouseMove(event: React.MouseEvent<HTMLCanvasElement>) {

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm --parallel dev",
-    "build": "pnpm --filter @boid-wasm-sim/components build && pnpm --filter @boid-wasm-sim/wasm build && pnpm --filter @boid-wasm-sim/web build:only",
+    "build": "pnpm --filter @boid-wasm-sim/hooks build && pnpm --filter @boid-wasm-sim/components build && pnpm --filter @boid-wasm-sim/wasm build && pnpm --filter @boid-wasm-sim/web build:only",
     "preview": "pnpm --filter @boid-wasm-sim/web preview",
     "clean": "pnpm --recursive clean",
     "test": "pnpm --filter @boid-wasm-sim/components test && pnpm --filter @boid-wasm-sim/web test",
@@ -19,8 +19,8 @@
     "check:fix": "biome check --write ."
   },
   "devDependencies": {
-    "@types/node": "^24.0.13",
-    "typescript": "^5.8.3",
-    "@biomejs/biome": "2.1.1"
+    "@biomejs/biome": "2.5.6",
+    "@types/node": "24.13.1",
+    "typescript": "catalog:"
   }
 }

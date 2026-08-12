@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.1/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.6/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -13,10 +13,10 @@
       "**/*.js",
       "**/*.jsx",
       "**/*.json",
-      "!node_modules/**",
-      "!dist/**",
-      "!build/**",
-      "!coverage/**",
+      "!node_modules",
+      "!dist",
+      "!build",
+      "!coverage",
       "!**/*.wasm",
       "!**/*.map",
       "!**/wasm_exec.js"
@@ -33,7 +33,7 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "complexity": {
         "noExtraBooleanCast": "error",
         "noUselessCatch": "error",
