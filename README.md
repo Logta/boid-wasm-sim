@@ -85,9 +85,8 @@ boid-wasm-sim/
 │   ├── components/         # UIコンポーネント
 │   └── main/              # メインアプリ
 ├── wasm/                  # Go WebAssemblyモジュール
-│   ├── *.go               # コアロジック
-│   ├── *_test.go          # 充実したテストスイート
-│   ├── spatial_grid.go    # 空間分割最適化
+│   ├── main.go            # JavaScript連携（エクスポート関数の登録のみ）
+│   ├── internal/          # 群れ行動のコアロジック（詳細はwasm/README.md）
 │   └── package.json
 ├── CLAUDE.md              # 開発指針
 └── .mise.toml            # 環境設定

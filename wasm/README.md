@@ -17,13 +17,15 @@ pnpm test
 pnpm dev
 ```
 
-## 主要ファイル
+## 構成
 
-- `simulation.go` - 群れ行動のコアロジック
-- `spatial_grid.go` - 空間分割による最適化
-- `vector.go` - ベクトル演算
-- `boid.go` - ボイド個体の定義
-- `main.go` - JavaScript連携とエクスポート
+`main.go`（`package main`）はJavaScript連携（引数の変換・関数登録）のみを担い、群れ行動のロジックは持ちません。実体は`internal/`配下のパッケージにあります。
+
+- `main.go` - JavaScript連携とエクスポート（ロジックは持たない）
+- `internal/simulation/` - 群れ全体の状態（ボイド一覧・パラメータ・空間分割インデックス）と、複数ボイドを参照する操舵行動（分離・整列・結合・マウス回避）、1フレーム更新処理
+- `internal/boid/` - ボイド1個体の物理更新（位置・速度の積分、境界処理）と、1個体の情報だけで完結する操舵（目標に向かう`Seek`）
+- `internal/spatialgrid/` - 空間分割による近隣探索の最適化
+- `internal/vector/` - ベクトル演算
 
 ## エクスポート関数
 
