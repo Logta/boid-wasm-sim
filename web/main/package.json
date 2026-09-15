@@ -14,14 +14,14 @@
     "@boid-wasm-sim/components": "workspace:*",
     "@boid-wasm-sim/hooks": "workspace:*",
     "@boid-wasm-sim/wasm": "workspace:*",
-    "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
-    "@types/react": "^19.3.0",
-    "@types/react-dom": "^19.3.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
     "@tailwindcss/postcss": "^4.3.3",
     "@vitejs/plugin-react": "^6.1.1",
     "@vitest/ui": "^4.1.11",
