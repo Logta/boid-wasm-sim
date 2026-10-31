@@ -340,3 +340,116 @@ func TestUpdateParams_WireIntoParams(t *testing.T) {
 		t.Errorf("after UpdateMouseAvoidanceDistance: params = %+v", sim.params)
 	}
 }
+
+// 同じ位置に重なった boid は距離 0 で方向が定まらないため、どの行動でも
+// 近傍として数えない（数えると自分の速度を打ち消す向きの力が生じてしまう）。
+func TestFlocking_IgnoresCoincidentBoids(t *testing.T) {
+	b1 := boid.New(100.0, 100.0)
+	b1.Velocity = vector.Vector2{X: 1.0, Y: 0.0}
+	b2 := boid.New(100.0, 100.0)
+	b2.Velocity = vector.Vector2{X: 0.0, Y: 1.0}
+
+	sim := newTestSimulation(Params{
+		SeparationRadius:   30.0,
+		SeparationStrength: 1.0,
+		AlignmentRadius:    60.0,
+		AlignmentStrength:  1.0,
+		CohesionRadius:     60.0,
+		CohesionStrength:   1.0,
+	}, []boid.Boid{b1, b2})
+
+	zeroVec := vector.Vector2{X: 0.0, Y: 0.0}
+	if f := sim.separate(&sim.boids[0], 0); f != zeroVec {
+		t.Errorf("separation with coincident boid = %v, want zero", f)
+	}
+	if f := sim.align(&sim.boids[0], 0); f != zeroVec {
+		t.Errorf("alignment with coincident boid = %v, want zero", f)
+	}
+	if f := sim.cohere(&sim.boids[0], 0); f != zeroVec {
+		t.Errorf("cohesion with coincident boid = %v, want zero", f)
+	}
+}
+
+// 半径ちょうどの距離にいる boid は近傍に含めない（半径は開区間）。
+func TestFlocking_ExcludesBoidsExactlyOnRadius(t *testing.T) {
+	b1 := boid.New(100.0, 100.0)
+	b1.Velocity = vector.Vector2{X: 1.0, Y: 0.0}
+	onSeparationRadius := boid.New(125.0, 100.0)
+	onSeparationRadius.Velocity = vector.Vector2{X: 0.0, Y: 1.0}
+	onOtherRadii := boid.New(100.0, 150.0)
+	onOtherRadii.Velocity = vector.Vector2{X: 0.0, Y: 1.0}
+
+	sim := newTestSimulation(Params{
+		SeparationRadius:   25.0,
+		SeparationStrength: 1.0,
+		AlignmentRadius:    50.0,
+		AlignmentStrength:  1.0,
+		CohesionRadius:     50.0,
+		CohesionStrength:   1.0,
+	}, []boid.Boid{b1, onSeparationRadius, onOtherRadii})
+
+	zeroVec := vector.Vector2{X: 0.0, Y: 0.0}
+	if f := sim.separate(&sim.boids[0], 0); f != zeroVec {
+		t.Errorf("separation with boid exactly on radius = %v, want zero", f)
+	}
+	// onSeparationRadius（距離 25）は整列・結合の半径 50 の内側なので、
+	// 整列・結合の判定には距離 50 ちょうどの onOtherRadii だけが残るよう除外する
+	sim.boids = []boid.Boid{b1, onOtherRadii}
+	sim.grid.Clear()
+	for i := range sim.boids {
+		sim.grid.Insert(i, sim.boids[i].Position)
+	}
+	if f := sim.align(&sim.boids[0], 0); f != zeroVec {
+		t.Errorf("alignment with boid exactly on radius = %v, want zero", f)
+	}
+	if f := sim.cohere(&sim.boids[0], 0); f != zeroVec {
+		t.Errorf("cohesion with boid exactly on radius = %v, want zero", f)
+	}
+}
+
+func TestBoidAvoidMouse_MagnitudeAndBoundary(t *testing.T) {
+	sim := New(Params{MouseAvoidanceDistance: 100.0})
+	b := boid.New(100.0, 100.0)
+
+	// 範囲内では MaxForce の 3 倍の大きさで押し返す
+	sim.SetMousePosition(130.0, 140.0)
+	force := sim.avoidMouse(&b)
+	if want := b.MaxForce * 3.0; !almostEqual(force.Magnitude(), want) {
+		t.Errorf("mouse avoidance magnitude = %v, want %v", force.Magnitude(), want)
+	}
+
+	// 距離がちょうど MouseAvoidanceDistance なら範囲外
+	sim.SetMousePosition(200.0, 100.0)
+	if f := sim.avoidMouse(&b); f != (vector.Vector2{}) {
+		t.Errorf("mouse avoidance exactly at distance = %v, want zero", f)
+	}
+}
+
+// マウス位置が未報告の間は、キャンバス内のどこにいても回避が働かない。
+func TestBoidAvoidMouse_InactiveBeforeMouseIsReported(t *testing.T) {
+	sim := New(DefaultParams())
+	for _, pos := range []vector.Vector2{{X: 0, Y: 0}, {X: 1010, Y: 1000}, {X: 2000, Y: 2000}} {
+		b := boid.New(pos.X, pos.Y)
+		if f := sim.avoidMouse(&b); f != (vector.Vector2{}) {
+			t.Errorf("mouse avoidance at %v before any mouse position = %v, want zero", pos, f)
+		}
+	}
+}
+
+// Init はキャンバス全体に散らばるように配置する（一隅に偏らない）。
+func TestInit_SpreadsBoidsAcrossCanvas(t *testing.T) {
+	sim := New(DefaultParams())
+	sim.Init(500, 1000, 800)
+
+	maxX, maxY := 0.0, 0.0
+	for i, b := range sim.boids {
+		if b.Position.X < 0 || b.Position.X > 1000 || b.Position.Y < 0 || b.Position.Y > 800 {
+			t.Fatalf("boid %d position %v out of the 1000x800 canvas", i, b.Position)
+		}
+		maxX = math.Max(maxX, b.Position.X)
+		maxY = math.Max(maxY, b.Position.Y)
+	}
+	if maxX < 500 || maxY < 400 {
+		t.Errorf("boids are not spread across the canvas: max x=%v, max y=%v", maxX, maxY)
+	}
+}

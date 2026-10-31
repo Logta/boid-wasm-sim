@@ -1,0 +1,28 @@
+# gremlins (Go mutation testing) の設定。
+# 実行: mise run mutation-go（または wasm/ で gremlins unleash）
+unleash:
+  # main.go は js/wasm ビルドタグ付きの JS バインディングのみで、ロジックは internal/ にある
+  exclude-files:
+    - "^main\\.go$"
+  timeout-coefficient: 10
+  output-statuses: "lc"
+
+mutants:
+  arithmetic-base:
+    enabled: true
+  conditionals-boundary:
+    enabled: true
+  conditionals-negation:
+    enabled: true
+  increment-decrement:
+    enabled: true
+  invert-negatives:
+    enabled: true
+  invert-assignments:
+    enabled: true
+  invert-logical:
+    enabled: true
+  invert-loopctrl:
+    enabled: true
+  remove-self-assignments:
+    enabled: true

@@ -105,6 +105,21 @@ func TestBoidWrapAround(t *testing.T) {
 			expected: vector.Vector2{X: 50.0, Y: 0.0},
 		},
 		{
+			// 境界ちょうどはまだキャンバス内なので折り返さない
+			name:     "exactly on left/top edge",
+			initial:  vector.Vector2{X: 0.0, Y: 0.0},
+			width:    100.0,
+			height:   100.0,
+			expected: vector.Vector2{X: 0.0, Y: 0.0},
+		},
+		{
+			name:     "exactly on right/bottom edge",
+			initial:  vector.Vector2{X: 100.0, Y: 100.0},
+			width:    100.0,
+			height:   100.0,
+			expected: vector.Vector2{X: 100.0, Y: 100.0},
+		},
+		{
 			name:     "inside bounds",
 			initial:  vector.Vector2{X: 50.0, Y: 50.0},
 			width:    100.0,
@@ -142,5 +157,26 @@ func TestBoidSeek(t *testing.T) {
 	// Force magnitude should not exceed MaxForce
 	if force.Magnitude() > b.MaxForce+1e-9 {
 		t.Errorf("Seek() force magnitude = %v, should not exceed MaxForce %v", force.Magnitude(), b.MaxForce)
+	}
+}
+
+// 初速は各成分が [-1, 1) の一様乱数。範囲外に出ないこと、かつ範囲全体に
+// 散らばること（係数の取り違えで極端に狭くならないこと）を多数のサンプルで確認する。
+func TestNewBoid_InitialVelocityRange(t *testing.T) {
+	const samples = 2000
+	minX, maxX, minY, maxY := math.Inf(1), math.Inf(-1), math.Inf(1), math.Inf(-1)
+
+	for i := 0; i < samples; i++ {
+		v := New(0, 0).Velocity
+		if v.X < -1.0 || v.X >= 1.0 || v.Y < -1.0 || v.Y >= 1.0 {
+			t.Fatalf("initial velocity %v is outside [-1, 1)", v)
+		}
+		minX, maxX = math.Min(minX, v.X), math.Max(maxX, v.X)
+		minY, maxY = math.Min(minY, v.Y), math.Max(maxY, v.Y)
+	}
+
+	// 2000 回引いて ±0.5 を超える値が一度も出ない確率は無視できる（0.75^2000）
+	if minX > -0.5 || maxX < 0.5 || minY > -0.5 || maxY < 0.5 {
+		t.Errorf("initial velocities do not spread over [-1, 1): x=[%v, %v], y=[%v, %v]", minX, maxX, minY, maxY)
 	}
 }

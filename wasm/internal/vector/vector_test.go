@@ -5,6 +5,12 @@ import (
 	"testing"
 )
 
+// closeTo は a と b の差が許容誤差以内かを返す。NaN が混ざると false になるので、
+// `math.Abs(a-b) > eps` で判定すると NaN を見逃す（NaN との比較は常に false）問題を避けられる。
+func closeTo(a, b float64) bool {
+	return math.Abs(a-b) <= 1e-9
+}
+
 func TestVector2Add(t *testing.T) {
 	v1 := Vector2{X: 1.0, Y: 2.0}
 	v2 := Vector2{X: 3.0, Y: 4.0}
@@ -62,7 +68,7 @@ func TestVector2Magnitude(t *testing.T) {
 	result := v.Magnitude()
 
 	expected := 5.0
-	if math.Abs(result-expected) > 1e-9 {
+	if !closeTo(result, expected) {
 		t.Errorf("Magnitude() = %v, want %v", result, expected)
 	}
 }
@@ -72,7 +78,7 @@ func TestVector2Normalize(t *testing.T) {
 	result := v.Normalize()
 
 	expected := Vector2{X: 0.6, Y: 0.8}
-	if math.Abs(result.X-expected.X) > 1e-9 || math.Abs(result.Y-expected.Y) > 1e-9 {
+	if !closeTo(result.X, expected.X) || !closeTo(result.Y, expected.Y) {
 		t.Errorf("Normalize() = %v, want %v", result, expected)
 	}
 }
@@ -93,7 +99,7 @@ func TestVector2Limit(t *testing.T) {
 
 	// Should be normalized to magnitude 5
 	expectedMag := 5.0
-	if math.Abs(result.Magnitude()-expectedMag) > 1e-9 {
+	if !closeTo(result.Magnitude(), expectedMag) {
 		t.Errorf("Limit() magnitude = %v, want %v", result.Magnitude(), expectedMag)
 	}
 }
@@ -114,7 +120,32 @@ func TestVector2Distance(t *testing.T) {
 	result := v1.Distance(v2)
 
 	expected := 5.0
-	if math.Abs(result-expected) > 1e-9 {
+	if !closeTo(result, expected) {
 		t.Errorf("Distance() = %v, want %v", result, expected)
+	}
+}
+
+// 原点以外どうしで測ることで、dx/dy の符号を取り違える実装を検知する。
+func TestVector2DistanceBetweenNonOriginPoints(t *testing.T) {
+	v1 := Vector2{X: 4.0, Y: 6.0}
+	v2 := Vector2{X: 1.0, Y: 2.0}
+
+	if got := v1.Distance(v2); !closeTo(got, 5.0) {
+		t.Errorf("Distance() = %v, want 5", got)
+	}
+	if got := v2.Distance(v1); !closeTo(got, 5.0) {
+		t.Errorf("Distance() reversed = %v, want 5", got)
+	}
+}
+
+func TestVector2DistanceSquared(t *testing.T) {
+	v1 := Vector2{X: 4.0, Y: 6.0}
+	v2 := Vector2{X: 1.0, Y: 2.0}
+
+	if got := v1.DistanceSquared(v2); got != 25.0 {
+		t.Errorf("DistanceSquared() = %v, want 25", got)
+	}
+	if got := v2.DistanceSquared(v1); got != 25.0 {
+		t.Errorf("DistanceSquared() reversed = %v, want 25", got)
 	}
 }

@@ -11,6 +11,6 @@ export default defineConfig({
         runScripts: "dangerously",
       },
     },
-    exclude: ["**/node_modules/**", "**/dist/**"],
+    exclude: ["**/node_modules/**", "**/dist/**", "**/.stryker-tmp/**"],
   },
 })

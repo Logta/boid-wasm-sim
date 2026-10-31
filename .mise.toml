@@ -31,6 +31,11 @@ test-components = "pnpm --filter @boid-wasm-sim/components test"
 test-wasm = "pnpm --filter @boid-wasm-sim/wasm test"
 test-web = "pnpm --filter @boid-wasm-sim/web test"
 
+# Mutation testing（重いので手動実行。CI には入れていない）
+mutation = "pnpm mutation"
+mutation-ts = "pnpm mutation:ts"
+mutation-go = "pnpm mutation:go"
+
 # 型チェック・リント
 typecheck = "pnpm typecheck"
 lint = "pnpm lint"

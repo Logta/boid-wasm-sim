@@ -35,3 +35,6 @@ yarn-error.log*
 # WASM files (generated)
 boid.wasm
 # Note: wasm_exec.js is kept in git as it's stable
+# Mutation testing (Stryker)
+**/reports/mutation/
+**/.stryker-tmp/

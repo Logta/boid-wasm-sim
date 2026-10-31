@@ -80,3 +80,38 @@ test("分離半径のスライダーを右矢印キーで操作するとonParame
 
   expect(onParameterChange).toHaveBeenCalledWith("separationRadius", 30)
 })
+
+test.each([
+  [0, "separationRadius", 30],
+  [1, "separationStrength", 1.6],
+  [2, "alignmentRadius", 60],
+  [3, "alignmentStrength", 1.1],
+  [4, "cohesionRadius", 60],
+  [5, "cohesionStrength", 1.1],
+  [6, "mouseAvoidanceDistance", 110],
+] as const)("%i番目のスライダーを1ステップ上げると%sが%sで通知される", (index, key, expected) => {
+  const { onParameterChange } = renderSidebar()
+
+  const slider = screen.getAllByRole("slider")[index]
+  slider.focus()
+  fireEvent.keyDown(slider, { key: "ArrowRight" })
+
+  expect(onParameterChange).toHaveBeenCalledTimes(1)
+  const [calledKey, calledValue] = onParameterChange.mock.calls[0]
+  expect(calledKey).toBe(key)
+  expect(calledValue).toBeCloseTo(expected, 5)
+})
+
+test("ボイド数を選択するとonBoidCountChangeに数値で通知される", () => {
+  // Radix Selectがjsdomで未実装のAPIを使うため最小限のスタブを用意する
+  Element.prototype.hasPointerCapture ??= () => false
+  Element.prototype.releasePointerCapture ??= () => undefined
+  Element.prototype.scrollIntoView ??= () => undefined
+
+  const { onBoidCountChange } = renderSidebar()
+
+  fireEvent.keyDown(screen.getByRole("combobox"), { key: "Enter" })
+  fireEvent.click(screen.getByRole("option", { name: "500匹" }))
+
+  expect(onBoidCountChange).toHaveBeenCalledWith(500)
+})
