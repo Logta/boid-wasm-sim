@@ -453,3 +453,102 @@ func TestInit_SpreadsBoidsAcrossCanvas(t *testing.T) {
 		t.Errorf("boids are not spread across the canvas: max x=%v, max y=%v", maxX, maxY)
 	}
 }
+
+// JS から渡る値は UI 経由では常に妥当だが、不正な値で Go ランタイムが panic すると
+// 以降すべての呼び出しが失敗するため、Init は不正な引数を拒否して状態を変えない。
+func TestInit_RejectsInvalidArguments(t *testing.T) {
+	tests := []struct {
+		name          string
+		count         int
+		width, height float64
+	}{
+		{"negative count", -1, 800, 600},
+		{"too many boids", MaxBoids + 1, 800, 600},
+		{"zero width", 10, 0, 600},
+		{"negative height", 10, 800, -1},
+		{"NaN width", 10, math.NaN(), 600},
+		{"infinite height", 10, 800, math.Inf(1)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sim := New(DefaultParams())
+			if err := sim.Init(5, 800, 600); err != nil {
+				t.Fatalf("valid Init returned error: %v", err)
+			}
+
+			if err := sim.Init(tt.count, tt.width, tt.height); err == nil {
+				t.Errorf("Init(%d, %v, %v) returned nil error", tt.count, tt.width, tt.height)
+			}
+			if sim.BoidCount() != 5 {
+				t.Errorf("BoidCount() after rejected Init = %d, want 5 (unchanged)", sim.BoidCount())
+			}
+			sim.Update() // 以前の状態のまま動き続けられる
+		})
+	}
+}
+
+func TestInit_AcceptsBoundaryCounts(t *testing.T) {
+	sim := New(DefaultParams())
+	for _, count := range []int{0, MaxBoids} {
+		if err := sim.Init(count, 800, 600); err != nil {
+			t.Errorf("Init(%d, 800, 600) returned error: %v", count, err)
+		}
+		if sim.BoidCount() != count {
+			t.Errorf("BoidCount() = %d, want %d", sim.BoidCount(), count)
+		}
+	}
+}
+
+func TestUpdate_BeforeInitDoesNotPanic(t *testing.T) {
+	sim := New(DefaultParams())
+	sim.Update()
+	if sim.BoidCount() != 0 {
+		t.Errorf("BoidCount() = %d, want 0", sim.BoidCount())
+	}
+}
+
+// 半径・強さ・回避距離に NaN/Inf/負の値が来ても無視し、直前の値を保つ。
+func TestUpdateParams_IgnoreInvalidValues(t *testing.T) {
+	for _, bad := range []float64{math.NaN(), math.Inf(1), math.Inf(-1), -1} {
+		sim := New(DefaultParams())
+		want := sim.params
+
+		sim.UpdateSeparationParams(bad, 1)
+		sim.UpdateSeparationParams(10, bad)
+		sim.UpdateAlignmentParams(bad, 1)
+		sim.UpdateAlignmentParams(10, bad)
+		sim.UpdateCohesionParams(bad, 1)
+		sim.UpdateCohesionParams(10, bad)
+		sim.UpdateMouseAvoidanceDistance(bad)
+
+		if sim.params != want {
+			t.Errorf("params after invalid value %v = %+v, want unchanged %+v", bad, sim.params, want)
+		}
+	}
+}
+
+func TestSetMousePosition_IgnoresNonFiniteValues(t *testing.T) {
+	sim := New(DefaultParams())
+	sim.SetMousePosition(42, 24)
+
+	sim.SetMousePosition(math.NaN(), 1)
+	sim.SetMousePosition(1, math.Inf(1))
+
+	if sim.mousePos != (vector.Vector2{X: 42, Y: 24}) {
+		t.Errorf("mousePos = %v, want (42, 24) unchanged", sim.mousePos)
+	}
+}
+
+// 強さ 0 はその行動を無効にする正当な値（UI のスライダーも 0 から）なので受け付ける。
+func TestUpdateParams_AcceptZero(t *testing.T) {
+	sim := New(DefaultParams())
+
+	sim.UpdateSeparationParams(0, 0)
+	sim.UpdateAlignmentParams(0, 0)
+	sim.UpdateCohesionParams(0, 0)
+	sim.UpdateMouseAvoidanceDistance(0)
+
+	if sim.params != (Params{}) {
+		t.Errorf("params after zeros = %+v, want all zero", sim.params)
+	}
+}

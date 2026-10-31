@@ -59,19 +59,24 @@ func (sg *SpatialGrid) Insert(boidIndex int, position vector.Vector2) {
 }
 
 // GetNeighbors returns all boid indices in cells within the given radius.
+// A negative or non-finite radius matches nothing.
 func (sg *SpatialGrid) GetNeighbors(position vector.Vector2, radius float64) []int {
 	neighbors := make([]int, 0, 20) // pre-allocate
+	if radius < 0 || math.IsNaN(radius) || math.IsInf(radius, 0) {
+		return neighbors
+	}
 
-	// Calculate cell range to check
-	cellRadius := int(math.Ceil(radius / sg.cellSize))
+	// Calculate cell range to check. The range is clamped to the grid so a
+	// huge radius cannot turn into a loop over billions of nonexistent cells.
+	cellRadius := int(math.Min(math.Ceil(radius/sg.cellSize), float64(max(sg.rows, sg.cols))))
 	centerRow, centerCol := sg.getCellCoords(position)
 
-	for row := centerRow - cellRadius; row <= centerRow+cellRadius; row++ {
-		for col := centerCol - cellRadius; col <= centerCol+cellRadius; col++ {
-			if sg.isValidCell(row, col) {
-				cellIndex := row*sg.cols + col
-				neighbors = append(neighbors, sg.cells[cellIndex]...)
-			}
+	rowStart, rowEnd := max(centerRow-cellRadius, 0), min(centerRow+cellRadius, sg.rows-1)
+	colStart, colEnd := max(centerCol-cellRadius, 0), min(centerCol+cellRadius, sg.cols-1)
+	for row := rowStart; row <= rowEnd; row++ {
+		for col := colStart; col <= colEnd; col++ {
+			cellIndex := row*sg.cols + col
+			neighbors = append(neighbors, sg.cells[cellIndex]...)
 		}
 	}
 

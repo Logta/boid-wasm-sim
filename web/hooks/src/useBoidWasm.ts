@@ -44,6 +44,14 @@ const WASM_EXPORT_KEYS: (keyof WasmExports)[] = [
   "updateMouseAvoidanceDistance",
 ]
 
+async function fetchOk(url: string): Promise<Response> {
+  const response = await fetch(url)
+  if (!response.ok) {
+    throw new Error(`${url} の取得に失敗しました（HTTP ${response.status}）`)
+  }
+  return response
+}
+
 export function useBoidWasm() {
   const [wasmModule, setWasmModule] = useState<WasmExports | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -57,19 +65,20 @@ export function useBoidWasm() {
         setIsLoading(true)
         setError(null)
 
-        // Go WASMランタイムをロード（相対パスを使用）
-        const wasmExecResponse = await fetch("./wasm_exec.js")
-        const wasmExecText = await wasmExecResponse.text()
+        // Go WASMランタイムとWASM本体を取得する（相対パスを使用）。
+        // 404 ページ等の HTML をスクリプトや WASM として扱わないよう、HTTP エラーはここで止める
+        const wasmExecText = await (await fetchOk("./wasm_exec.js")).text()
+        const wasmBytes = await (await fetchOk("./boid.wasm")).arrayBuffer()
 
-        // wasm_exec.jsを実行してGoオブジェクトを作成
+        // wasm_exec.jsを実行してGoオブジェクトを作成する。
+        // インラインスクリプトは追加時に同期実行されるので、実行後すぐに取り除く
         const script = document.createElement("script")
         script.textContent = wasmExecText
         document.head.appendChild(script)
+        document.head.removeChild(script)
 
-        // GoのWASMインスタンスを作成（相対パスを使用）
+        // GoのWASMインスタンスを作成
         const go = new window.Go()
-        const wasmResponse = await fetch("./boid.wasm")
-        const wasmBytes = await wasmResponse.arrayBuffer()
         const wasmModule = await WebAssembly.instantiate(wasmBytes, go.importObject)
 
         // WASMを実行。go.run()はGoプログラムが終了するまで解決しないため
@@ -112,9 +121,6 @@ export function useBoidWasm() {
         if (isMounted) {
           setWasmModule(wasmExports)
         }
-
-        // スクリプトをクリーンアップ
-        document.head.removeChild(script)
       } catch (err) {
         if (!isMounted) return
         setError(err instanceof Error ? err : new Error("Unknown WASM load error"))

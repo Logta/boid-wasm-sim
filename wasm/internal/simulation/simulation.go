@@ -8,6 +8,8 @@
 package simulation
 
 import (
+	"errors"
+	"fmt"
 	"math"
 	"math/rand"
 
@@ -51,6 +53,10 @@ var noMousePosition = vector.Vector2{X: -1000.0, Y: -1000.0}
 // (web/components/src/Sidebar.tsx), so this stays well under that.
 const interactionCellSize = 75.0
 
+// MaxBoids is the largest flock Init accepts. The UI offers at most 1000;
+// the cap only guards against absurd values arriving over the JS boundary.
+const MaxBoids = 10000
+
 // Simulation owns the full state of a running boid flock.
 type Simulation struct {
 	boids        []boid.Boid
@@ -72,7 +78,15 @@ func New(params Params) *Simulation {
 
 // Init (re)populates the simulation with count boids scattered randomly
 // across a width x height canvas, replacing any boids it had before.
-func (s *Simulation) Init(count int, width, height float64) {
+// Invalid arguments are rejected with an error and leave the simulation unchanged.
+func (s *Simulation) Init(count int, width, height float64) error {
+	if count < 0 || count > MaxBoids {
+		return fmt.Errorf("boid count %d is out of range [0, %d]", count, MaxBoids)
+	}
+	if !isPositiveFinite(width) || !isPositiveFinite(height) {
+		return errors.New("canvas size must be positive and finite")
+	}
+
 	s.canvasWidth = width
 	s.canvasHeight = height
 	s.grid = spatialgrid.New(width, height, interactionCellSize)
@@ -83,12 +97,26 @@ func (s *Simulation) Init(count int, width, height float64) {
 		y := rand.Float64() * height
 		s.boids = append(s.boids, boid.New(x, y))
 	}
+	return nil
+}
+
+func isPositiveFinite(v float64) bool {
+	return v > 0 && !math.IsInf(v, 0)
+}
+
+// isValidParam reports whether v can be used as a radius, strength, or
+// distance: finite and not negative.
+func isValidParam(v float64) bool {
+	return v >= 0 && !math.IsInf(v, 0)
 }
 
 // Update advances the simulation by one frame: it rebuilds the spatial
 // index for this frame's positions, computes flocking forces for every
 // boid, and integrates motion.
 func (s *Simulation) Update() {
+	if s.grid == nil {
+		return // Init has not succeeded yet
+	}
 	s.grid.Clear()
 	for i := range s.boids {
 		s.grid.Insert(i, s.boids[i].Position)
@@ -112,8 +140,12 @@ func (s *Simulation) Update() {
 	}
 }
 
-// SetMousePosition updates the point boids steer away from.
+// SetMousePosition updates the point boids steer away from. Non-finite
+// coordinates are ignored.
 func (s *Simulation) SetMousePosition(x, y float64) {
+	if math.IsNaN(x) || math.IsNaN(y) || math.IsInf(x, 0) || math.IsInf(y, 0) {
+		return
+	}
 	s.mousePos = vector.Vector2{X: x, Y: y}
 }
 
@@ -123,25 +155,38 @@ func (s *Simulation) BoidCount() int {
 }
 
 // UpdateSeparationParams changes the separation behavior's radius and strength.
+// Like the other Update*Params methods, it ignores negative or non-finite values.
 func (s *Simulation) UpdateSeparationParams(radius, strength float64) {
+	if !isValidParam(radius) || !isValidParam(strength) {
+		return
+	}
 	s.params.SeparationRadius = radius
 	s.params.SeparationStrength = strength
 }
 
 // UpdateAlignmentParams changes the alignment behavior's radius and strength.
 func (s *Simulation) UpdateAlignmentParams(radius, strength float64) {
+	if !isValidParam(radius) || !isValidParam(strength) {
+		return
+	}
 	s.params.AlignmentRadius = radius
 	s.params.AlignmentStrength = strength
 }
 
 // UpdateCohesionParams changes the cohesion behavior's radius and strength.
 func (s *Simulation) UpdateCohesionParams(radius, strength float64) {
+	if !isValidParam(radius) || !isValidParam(strength) {
+		return
+	}
 	s.params.CohesionRadius = radius
 	s.params.CohesionStrength = strength
 }
 
 // UpdateMouseAvoidanceDistance changes how far away boids start avoiding the mouse.
 func (s *Simulation) UpdateMouseAvoidanceDistance(distance float64) {
+	if !isValidParam(distance) {
+		return
+	}
 	s.params.MouseAvoidanceDistance = distance
 }
 

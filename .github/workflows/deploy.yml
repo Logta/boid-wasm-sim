@@ -54,10 +54,11 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
-          version: latest
+          # .mise.toml と同じ版に固定（latest だと公開直後の版を minimumReleaseAge なしで使ってしまう）
+          version: 12.15.0
       
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
       
       - name: Build WASM module
         run: |
@@ -114,7 +115,9 @@ jobs:
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
       
       - name: Display deployment URL
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
         run: |
           echo "🚀 Deployment successful!"
-          echo "📱 Live URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "📱 Live URL: ${PAGE_URL}"
           echo "✨ Boid simulation is now available online!"

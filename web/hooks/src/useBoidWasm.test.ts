@@ -49,10 +49,10 @@ let fetchMock: ReturnType<typeof vi.fn>
 beforeEach(() => {
   fetchMock = vi.fn(async (url: string) => {
     if (url === "./wasm_exec.js") {
-      return { text: async () => "/* wasm_exec.js stub */" } as Response
+      return { ok: true, status: 200, text: async () => "/* wasm_exec.js stub */" } as Response
     }
     if (url === "./boid.wasm") {
-      return { arrayBuffer: async () => new ArrayBuffer(8) } as Response
+      return { ok: true, status: 200, arrayBuffer: async () => new ArrayBuffer(8) } as Response
     }
     throw new Error(`unexpected fetch: ${url}`)
   })
@@ -349,3 +349,36 @@ test("go.run()がError以外の値でrejectした場合も、既定のメッセ�
     expect(result.current.error?.message).toBe("WASM実行中に予期しないエラーが発生しました")
   )
 })
+
+test.each([["./wasm_exec.js"], ["./boid.wasm"]])(
+  "%sの取得がHTTPエラーなら、その内容を実行せずエラーにする",
+  async (failingUrl) => {
+    const exports = mockWasmExports()
+    stubGoRegistering(exports)
+    fetchMock.mockImplementation(async (url: string) => {
+      if (url === failingUrl) {
+        // GitHub Pages の 404 ページ等。HTML を JS/WASM として扱ってはいけない
+        return {
+          ok: false,
+          status: 404,
+          text: async () => "<!doctype html><title>404</title>",
+          arrayBuffer: async () => new ArrayBuffer(0),
+        } as Response
+      }
+      if (url === "./wasm_exec.js") {
+        return { ok: true, status: 200, text: async () => "/* wasm_exec.js stub */" } as Response
+      }
+      return { ok: true, status: 200, arrayBuffer: async () => new ArrayBuffer(8) } as Response
+    })
+    const scriptsBefore = document.head.querySelectorAll("script").length
+
+    const { result } = renderHook(() => useBoidWasm())
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+    expect(result.current.wasmModule).toBeNull()
+    expect(result.current.error?.message).toContain(failingUrl)
+    expect(result.current.error?.message).toContain("404")
+    expect(WebAssembly.instantiate).not.toHaveBeenCalled()
+    expect(document.head.querySelectorAll("script").length).toBe(scriptsBefore)
+  }
+)

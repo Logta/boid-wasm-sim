@@ -1,7 +1,9 @@
 package spatialgrid
 
 import (
+	"math"
 	"testing"
+	"time"
 
 	"boid-wasm-sim/internal/vector"
 )
@@ -140,5 +142,36 @@ func TestClear(t *testing.T) {
 	near := grid.GetNeighbors(vector.Vector2{X: 10, Y: 10}, 30.0)
 	if containsInt(near, 0) {
 		t.Errorf("Clear()後はどのboidも見つからないはず, got %v", near)
+	}
+}
+
+// 半径が非常に大きくても、走査はグリッド内のセルに限られ、すぐに終わる
+// （範囲外のセルまでループすると JS から異常な値が渡ったときにタブが固まる）。
+func TestGetNeighbors_HugeRadiusStaysWithinGrid(t *testing.T) {
+	grid := New(800.0, 600.0, 75.0)
+	grid.Insert(0, vector.Vector2{X: 10, Y: 10})
+	grid.Insert(1, vector.Vector2{X: 790, Y: 590})
+
+	done := make(chan []int, 1)
+	go func() { done <- grid.GetNeighbors(vector.Vector2{X: 400, Y: 300}, 1e12) }()
+
+	select {
+	case neighbors := <-done:
+		if len(neighbors) != 2 || !containsInt(neighbors, 0) || !containsInt(neighbors, 1) {
+			t.Errorf("GetNeighbors(huge radius) = %v, want both boids exactly once", neighbors)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("GetNeighbors(huge radius) did not finish within 1s")
+	}
+}
+
+func TestGetNeighbors_NonFiniteRadiusReturnsNothing(t *testing.T) {
+	grid := New(800.0, 600.0, 75.0)
+	grid.Insert(0, vector.Vector2{X: 400, Y: 300})
+
+	for _, r := range []float64{math.NaN(), math.Inf(1), -1} {
+		if got := grid.GetNeighbors(vector.Vector2{X: 400, Y: 300}, r); len(got) != 0 {
+			t.Errorf("GetNeighbors(radius=%v) = %v, want none", r, got)
+		}
 	}
 }
