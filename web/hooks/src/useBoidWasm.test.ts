@@ -49,10 +49,10 @@ let fetchMock: ReturnType<typeof vi.fn>
 beforeEach(() => {
   fetchMock = vi.fn(async (url: string) => {
     if (url === "./wasm_exec.js") {
-      return { text: async () => "/* wasm_exec.js stub */" } as Response
+      return { ok: true, status: 200, text: async () => "/* wasm_exec.js stub */" } as Response
     }
     if (url === "./boid.wasm") {
-      return { arrayBuffer: async () => new ArrayBuffer(8) } as Response
+      return { ok: true, status: 200, arrayBuffer: async () => new ArrayBuffer(8) } as Response
     }
     throw new Error(`unexpected fetch: ${url}`)
   })
@@ -210,3 +210,175 @@ test("go.run()が非同期に失敗(reject)した場合もerrorがセットさ�
   await waitFor(() => expect(result.current.error).not.toBeNull())
   expect(result.current.wasmModule).toBeNull()
 })
+
+function stubGoRegistering(exports: MockExports) {
+  stubGo(() => {
+    Object.assign(window, exports)
+    return new Promise(() => {
+      // 実運用同様、Goプログラムの実行中は解決しない
+    })
+  })
+}
+
+test("全てのラッパーがロード後のGo関数へ引数をそのまま渡す", async () => {
+  const exports = mockWasmExports()
+  stubGoRegistering(exports)
+
+  const { result } = renderHook(() => useBoidWasm())
+  await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+  act(() => {
+    result.current.updateSimulation()
+    result.current.setMousePosition(12, 34)
+    result.current.updateAlignmentParams(50, 1.2)
+    result.current.updateCohesionParams(60, 0.8)
+    result.current.updateMouseAvoidanceDistance(120)
+  })
+
+  expect(exports.updateSimulation).toHaveBeenCalledTimes(1)
+  expect(exports.setMousePosition).toHaveBeenCalledWith(12, 34)
+  expect(exports.updateAlignmentParams).toHaveBeenCalledWith(50, 1.2)
+  expect(exports.updateCohesionParams).toHaveBeenCalledWith(60, 0.8)
+  expect(exports.updateMouseAvoidanceDistance).toHaveBeenCalledWith(120)
+})
+
+test("ロード完了前はラッパーを呼んでも何もせず、getBoidsは空配列を返す", () => {
+  // Goプログラムを起動させず、ロード中のままにする
+  const pending = () =>
+    new Promise<never>(() => {
+      // 解決しないPromiseでロード中の状態を保つ
+    })
+  stubGo(pending)
+  fetchMock.mockImplementation(pending)
+
+  const { result } = renderHook(() => useBoidWasm())
+
+  expect(result.current.wasmModule).toBeNull()
+  expect(() => {
+    result.current.initializeSimulation(10, 100, 100)
+    result.current.updateSimulation()
+    result.current.setMousePosition(1, 2)
+    result.current.updateSeparationParams(1, 1)
+    result.current.updateAlignmentParams(1, 1)
+    result.current.updateCohesionParams(1, 1)
+    result.current.updateMouseAvoidanceDistance(1)
+  }).not.toThrow()
+  expect(result.current.getBoids()).toEqual([])
+})
+
+test("未登録の関数があるとき、エラーメッセージにその関数名を含める", async () => {
+  const { updateCohesionParams: _omitted, ...partialExports } = mockWasmExports()
+  stubGo(() => {
+    Object.assign(window, partialExports)
+    return new Promise(() => {
+      // 実運用同様、Goプログラムの実行中は解決しない
+    })
+  })
+
+  const { result } = renderHook(() => useBoidWasm())
+  await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+  expect(result.current.error?.message).toContain("updateCohesionParams")
+  expect(result.current.error?.message).not.toContain("initializeSimulation")
+})
+
+test("ロード完了後、wasm_exec.jsを実行するために挿入した<script>を取り除く", async () => {
+  stubGoRegistering(mockWasmExports())
+  const scriptsBefore = document.head.querySelectorAll("script").length
+
+  const { result } = renderHook(() => useBoidWasm())
+  await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+  expect(document.head.querySelectorAll("script").length).toBe(scriptsBefore)
+})
+
+test("未登録の関数が複数あるときは、カンマ区切りで列挙する", async () => {
+  const {
+    updateCohesionParams: _a,
+    updateMouseAvoidanceDistance: _b,
+    ...partialExports
+  } = mockWasmExports()
+  stubGo(() => {
+    Object.assign(window, partialExports)
+    return new Promise(() => {
+      // 実運用同様、Goプログラムの実行中は解決しない
+    })
+  })
+
+  const { result } = renderHook(() => useBoidWasm())
+  await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+  expect(result.current.error?.message).toContain(
+    "updateCohesionParams, updateMouseAvoidanceDistance"
+  )
+})
+
+test("Error以外の値で失敗した場合も、既定のメッセージを持つErrorにする", async () => {
+  fetchMock.mockImplementation(async () => {
+    throw "plain string failure"
+  })
+
+  const { result } = renderHook(() => useBoidWasm())
+  await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+  expect(result.current.error).toBeInstanceOf(Error)
+  expect(result.current.error?.message).toBe("Unknown WASM load error")
+})
+
+test("go.run()がError以外の値でrejectした場合も、既定のメッセージを持つErrorにする", async () => {
+  const exports = mockWasmExports()
+  let rejectRun: (reason: unknown) => void = () => {
+    // stubGo内で実体が差し替えられるまでのプレースホルダー
+  }
+  stubGo(() => {
+    Object.assign(window, exports)
+    return new Promise((_resolve, reject) => {
+      rejectRun = reject
+    })
+  })
+
+  const { result } = renderHook(() => useBoidWasm())
+  await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+  await act(async () => {
+    rejectRun("exit code 2")
+    await Promise.resolve()
+  })
+
+  await waitFor(() =>
+    expect(result.current.error?.message).toBe("WASM実行中に予期しないエラーが発生しました")
+  )
+})
+
+test.each([["./wasm_exec.js"], ["./boid.wasm"]])(
+  "%sの取得がHTTPエラーなら、その内容を実行せずエラーにする",
+  async (failingUrl) => {
+    const exports = mockWasmExports()
+    stubGoRegistering(exports)
+    fetchMock.mockImplementation(async (url: string) => {
+      if (url === failingUrl) {
+        // GitHub Pages の 404 ページ等。HTML を JS/WASM として扱ってはいけない
+        return {
+          ok: false,
+          status: 404,
+          text: async () => "<!doctype html><title>404</title>",
+          arrayBuffer: async () => new ArrayBuffer(0),
+        } as Response
+      }
+      if (url === "./wasm_exec.js") {
+        return { ok: true, status: 200, text: async () => "/* wasm_exec.js stub */" } as Response
+      }
+      return { ok: true, status: 200, arrayBuffer: async () => new ArrayBuffer(8) } as Response
+    })
+    const scriptsBefore = document.head.querySelectorAll("script").length
+
+    const { result } = renderHook(() => useBoidWasm())
+    await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+    expect(result.current.wasmModule).toBeNull()
+    expect(result.current.error?.message).toContain(failingUrl)
+    expect(result.current.error?.message).toContain("404")
+    expect(WebAssembly.instantiate).not.toHaveBeenCalled()
+    expect(document.head.querySelectorAll("script").length).toBe(scriptsBefore)
+  }
+)

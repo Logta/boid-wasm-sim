@@ -13,3 +13,8 @@ onlyBuiltDependencies:
   - esbuild
 
 minimumReleaseAge: 10080
+
+overrides:
+  # Stryker (@stryker-mutator/core -> typed-rest-client) が引き込む qs の DoS 系アドバイザリ対策
+  # (GHSA-g3hv-75wg-m249 ほか)。6.16.1 で全て修正済み。typed-rest-client 側が追従したら削除する
+  qs: ^6.16.1

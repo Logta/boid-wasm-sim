@@ -38,10 +38,11 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
-          version: latest
+          # .mise.toml と同じ版に固定（latest だと公開直後の版を minimumReleaseAge なしで使ってしまう）
+          version: 12.15.0
       
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
       
       - name: Lint and format check
         run: |
@@ -102,10 +103,11 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
         with:
-          version: latest
+          # .mise.toml と同じ版に固定（latest だと公開直後の版を minimumReleaseAge なしで使ってしまう）
+          version: 12.15.0
       
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
       
       - name: Security audit
         run: pnpm audit

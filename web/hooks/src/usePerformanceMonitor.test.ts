@@ -151,3 +151,102 @@ test("stopはfpsのみ0にし、フレームカウントの基準時刻はリセ
 
   expect(result.current.fps).toBe(0)
 })
+
+test("frameTimeはstartFrameからendFrameまでの経過時間になる", () => {
+  const { result } = renderHook(() => usePerformanceMonitor())
+
+  act(() => {
+    advance(500)
+    result.current.startFrame()
+    advance(16)
+    result.current.endFrame()
+  })
+
+  expect(result.current.frameTime).toBe(16)
+})
+
+test("updateTime/renderTimeはそれぞれstart〜endの経過時間になり、resetで0に戻る", () => {
+  const { result } = renderHook(() => usePerformanceMonitor())
+
+  act(() => {
+    advance(100)
+    result.current.startUpdate()
+    advance(5)
+    result.current.endUpdate()
+    result.current.startRender()
+    advance(3)
+    result.current.endRender()
+  })
+
+  expect(result.current.updateTime).toBe(5)
+  expect(result.current.renderTime).toBe(3)
+
+  act(() => {
+    result.current.reset()
+  })
+
+  expect(result.current.updateTime).toBe(0)
+  expect(result.current.renderTime).toBe(0)
+})
+
+test("fpsは直前の計測時刻からの経過時間とその間のフレーム数から計算される", () => {
+  const { result } = renderHook(() => usePerformanceMonitor())
+
+  act(() => {
+    runFrames(result, 60)
+  })
+  expect(result.current.fps).toBe(60)
+
+  // 2回目の計測窓: 1000ms〜3000msの2秒間に60フレーム = 30fps
+  act(() => {
+    for (let i = 0; i < 59; i++) {
+      result.current.startFrame()
+      result.current.endFrame()
+    }
+    result.current.startFrame()
+    now = 3000
+    result.current.endFrame()
+  })
+
+  expect(result.current.fps).toBe(30)
+})
+
+test("fpsがwarningThresholdちょうどの場合は警告しない", () => {
+  const onPerformanceWarning = vi.fn()
+  const { result } = renderHook(() => usePerformanceMonitor(60, { onPerformanceWarning }))
+
+  act(() => {
+    // targetFps=60 の 80% = 48fps
+    runFrames(result, 48)
+  })
+
+  expect(result.current.fps).toBe(48)
+  expect(onPerformanceWarning).not.toHaveBeenCalled()
+})
+
+test("fpsが0に丸められる(長時間停止後の1フレーム等)場合は警告しない", () => {
+  const onPerformanceWarning = vi.fn()
+  const { result } = renderHook(() => usePerformanceMonitor(60, { onPerformanceWarning }))
+
+  act(() => {
+    result.current.startFrame()
+    advance(5000)
+    result.current.endFrame()
+  })
+
+  expect(result.current.fps).toBe(0)
+  expect(onPerformanceWarning).not.toHaveBeenCalled()
+})
+
+test("warningThresholdを指定するとその値を基準に警告する", () => {
+  const onPerformanceWarning = vi.fn()
+  const { result } = renderHook(() =>
+    usePerformanceMonitor(60, { onPerformanceWarning, warningThreshold: 20 })
+  )
+
+  act(() => {
+    runFrames(result, 30)
+  })
+
+  expect(onPerformanceWarning).not.toHaveBeenCalled()
+})

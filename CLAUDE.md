@@ -40,6 +40,7 @@ mise タスク経由での実行を基本とする（詳細は .mise.toml）。
 - `mise run test-all` — テスト実行（components / web / wasm。**web/hooks は含まれない**ので変更時は個別に `pnpm --filter @boid-wasm-sim/hooks test` を実行する）
 - `mise run check` — Biomeによるlint
 - `mise run typecheck` — 型チェック
+- `mise run mutation` — mutation testing（Go: gremlins / TS: Stryker。重いので手動実行）
 
 ## テスト方針
 

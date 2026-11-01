@@ -7,6 +7,7 @@
 package main
 
 import (
+	"math"
 	"syscall/js"
 
 	"boid-wasm-sim/internal/simulation"
@@ -14,13 +15,39 @@ import (
 
 var sim *simulation.Simulation
 
+// numberArgs reads the first n arguments as numbers. It reports false when
+// an argument is missing or is not a JS number, because js.Value.Float/Int
+// panic on other types and a panic ends the Go program for good (every
+// later call from JS would then fail).
+func numberArgs(args []js.Value, n int) ([]float64, bool) {
+	if len(args) < n {
+		return nil, false
+	}
+	values := make([]float64, n)
+	for i := 0; i < n; i++ {
+		if args[i].Type() != js.TypeNumber {
+			return nil, false
+		}
+		values[i] = args[i].Float()
+	}
+	return values, true
+}
+
 func initializeSimulation(this js.Value, args []js.Value) interface{} {
-	count := args[0].Int()
-	width := args[1].Float()
-	height := args[2].Float()
+	v, ok := numberArgs(args, 3)
+	if !ok {
+		println("initializeSimulation: expected (count, width, height) as numbers")
+		return nil
+	}
+	count := v[0]
+	if math.IsNaN(count) || count < 0 || count > simulation.MaxBoids {
+		println("initializeSimulation: boid count out of range")
+		return nil
+	}
 
-	sim.Init(count, width, height)
-
+	if err := sim.Init(int(count), v[1], v[2]); err != nil {
+		println("initializeSimulation:", err.Error())
+	}
 	return nil
 }
 
@@ -30,7 +57,9 @@ func updateSimulation(this js.Value, args []js.Value) interface{} {
 }
 
 func setMousePosition(this js.Value, args []js.Value) interface{} {
-	sim.SetMousePosition(args[0].Float(), args[1].Float())
+	if v, ok := numberArgs(args, 2); ok {
+		sim.SetMousePosition(v[0], v[1])
+	}
 	return nil
 }
 
@@ -39,22 +68,30 @@ func getBoidCount(this js.Value, args []js.Value) interface{} {
 }
 
 func updateSeparationParams(this js.Value, args []js.Value) interface{} {
-	sim.UpdateSeparationParams(args[0].Float(), args[1].Float())
+	if v, ok := numberArgs(args, 2); ok {
+		sim.UpdateSeparationParams(v[0], v[1])
+	}
 	return nil
 }
 
 func updateAlignmentParams(this js.Value, args []js.Value) interface{} {
-	sim.UpdateAlignmentParams(args[0].Float(), args[1].Float())
+	if v, ok := numberArgs(args, 2); ok {
+		sim.UpdateAlignmentParams(v[0], v[1])
+	}
 	return nil
 }
 
 func updateCohesionParams(this js.Value, args []js.Value) interface{} {
-	sim.UpdateCohesionParams(args[0].Float(), args[1].Float())
+	if v, ok := numberArgs(args, 2); ok {
+		sim.UpdateCohesionParams(v[0], v[1])
+	}
 	return nil
 }
 
 func updateMouseAvoidanceDistance(this js.Value, args []js.Value) interface{} {
-	sim.UpdateMouseAvoidanceDistance(args[0].Float())
+	if v, ok := numberArgs(args, 1); ok {
+		sim.UpdateMouseAvoidanceDistance(v[0])
+	}
 	return nil
 }
 

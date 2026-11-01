@@ -15,6 +15,7 @@
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "test": "vitest",
+    "mutation": "stryker run",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
@@ -22,6 +23,8 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@stryker-mutator/core": "10.1.1",
+    "@stryker-mutator/vitest-runner": "10.1.1",
     "@testing-library/react": "^16.3.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",

@@ -76,6 +76,21 @@ pnpm --filter @boid-wasm-sim/components test
 pnpm --filter @boid-wasm-sim/web test
 ```
 
+### Mutation testing
+
+テストの検出力を確かめるために、手動で実行します（重いので CI には入れていません）。
+
+```bash
+# Go（gremlins。設定は wasm/.gremlins.yaml）と TS（Stryker。web/hooks・web/components の stryker.config.json）
+mise run mutation
+
+# 片方だけ
+mise run mutation-go
+mise run mutation-ts
+```
+
+Stryker のレポートは `web/*/reports/mutation/index.html` に出力されます。
+
 ## プロジェクト構成
 
 ```

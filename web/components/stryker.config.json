@@ -1,0 +1,19 @@
+{
+  "$schema": "../../node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "packageManager": "pnpm",
+  "plugins": ["@stryker-mutator/vitest-runner"],
+  "testRunner": "vitest",
+  "vitest": {
+    "configFile": "vitest.config.ts"
+  },
+  "mutate": ["src/Sidebar.tsx", "src/BoidRenderer.tsx"],
+  "ignoreStatic": true,
+  "reporters": ["json", "clear-text", "progress", "html"],
+  "htmlReporter": {
+    "fileName": "reports/mutation/index.html"
+  },
+  "tempDirName": ".stryker-tmp",
+  "concurrency": 4,
+  "tsconfigFile": "tsconfig.stryker-skip.json",
+  "tsconfigFile_comment": "TypeScript 7 (ネイティブ版) には JS API が無く Stryker の tsconfig 書き換えが失敗するため、存在しないファイルを指定してスキップさせる"
+}
